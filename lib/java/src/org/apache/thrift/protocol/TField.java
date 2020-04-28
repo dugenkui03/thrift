@@ -20,6 +20,8 @@
 package org.apache.thrift.protocol;
 
 /**
+ * fixme 压缩字段元数据的help类
+ *
  * Helper class that encapsulates field metadata.
  * <p>Two fields are considered equal if they have the same type and id.</p>
  */
@@ -34,6 +36,9 @@ public class TField {
     id = i;
   }
 
+  /**
+   * 字段名称、字段类型和字段在所属类中的id
+   */
   public final String name;
   public final byte   type;
   public final short  id;

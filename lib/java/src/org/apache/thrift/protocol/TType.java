@@ -23,8 +23,11 @@ package org.apache.thrift.protocol;
  * Type constants in the Thrift protocol.
  */
 public final class TType {
+  //特殊类型
   public static final byte STOP   = 0;
   public static final byte VOID   = 1;
+
+  //"基本类型"
   public static final byte BOOL   = 2;
   public static final byte BYTE   = 3;
   public static final byte DOUBLE = 4;
@@ -32,9 +35,13 @@ public final class TType {
   public static final byte I32    = 8;
   public static final byte I64    = 10;
   public static final byte STRING = 11;
+
+  //对象
   public static final byte STRUCT = 12;
+  public static final byte ENUM   = 16;
+
+  //集合
   public static final byte MAP    = 13;
   public static final byte SET    = 14;
   public static final byte LIST   = 15;
-  public static final byte ENUM   = 16;
 }

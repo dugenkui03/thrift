@@ -18,8 +18,10 @@
  */
 package org.apache.thrift.scheme;
 
+
+//schema的工厂方法
 public interface SchemeFactory {
 
-  public <S extends IScheme> S getScheme();
+  <S extends IScheme> S getScheme();
 
 }

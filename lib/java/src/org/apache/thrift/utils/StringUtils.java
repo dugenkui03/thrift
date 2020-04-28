@@ -25,6 +25,7 @@ public final class StringUtils {
     // Utility class.
   }
 
+  //16进制字符
   private static final char[] HEX_CHARS = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
   /**
@@ -41,12 +42,14 @@ public final class StringUtils {
   }
 
   /**
+   * 字符串化字节数组的一部分
+   *
    * Stringify a portion of the byte array.
    *
-   * @param bytes byte array.
-   * @param offset portion start.
-   * @param length portion length.
-   * @return hex string.
+   * @param bytes byte array. 字节数组
+   * @param offset portion start. 偏移量
+   * @param length portion length. 长度
+   * @return hex string. 16进制字符；
    */
   public static String bytesToHexString(byte[] bytes, int offset, int length) {
     if (length < 0) {
@@ -55,6 +58,10 @@ public final class StringUtils {
     if (offset < 0) {
       throw new IndexOutOfBoundsException("Negative start offset " + offset);
     }
+    if ((offset | length | (offset + length) | (bytes.length - (offset + bytes.length))) < 0)
+      throw new IndexOutOfBoundsException(" bytes.length: " + bytes.length + "offset: " + offset + " length: " + length);
+
+
     char[] chars = new char[length * 2];
     for (int i = 0; i < length; i++) {
       int unsignedInt = bytes[i + offset] & 0xFF;

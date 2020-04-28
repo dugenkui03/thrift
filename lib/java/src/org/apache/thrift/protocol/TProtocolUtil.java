@@ -29,6 +29,8 @@ import org.apache.thrift.TException;
 public class TProtocolUtil {
 
   /**
+   * fixme 静态变量：skip可以递归的最大深度，超过则抛TException异常
+   *
    * The maximum recursive depth the skip() function will traverse before
    * throwing a TException.
    */

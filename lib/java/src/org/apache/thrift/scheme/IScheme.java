@@ -19,11 +19,19 @@
 package org.apache.thrift.scheme;
 
 import org.apache.thrift.TBase;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TProtocol;
 
 public interface IScheme<T extends TBase> {
 
-  public void read(org.apache.thrift.protocol.TProtocol iproto, T struct) throws org.apache.thrift.TException;
+  /**
+   * 通过协议对 对象进行读写
+   * @param iproto 二进制协议、json协议、三元组协议等
+   * @param struct 
+   * @throws TException
+   */
+    void read(TProtocol iproto, T struct) throws TException;
 
-  public void write(org.apache.thrift.protocol.TProtocol oproto, T struct) throws org.apache.thrift.TException;
+    void write(TProtocol oproto, T struct) throws TException;
 
 }

@@ -24,8 +24,10 @@ import java.io.Serializable;
 import org.apache.thrift.transport.TTransport;
 
 /**
+ * 构造协议对象的工厂接口
+ *
  * Factory interface for constructing protocol instances.
  */
 public interface TProtocolFactory extends Serializable {
-  public TProtocol getProtocol(TTransport trans);
+  TProtocol getProtocol(TTransport trans);
 }

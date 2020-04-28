@@ -27,12 +27,14 @@ import org.apache.thrift.scheme.StandardScheme;
 import org.apache.thrift.transport.TTransport;
 
 /**
- * Protocol interface definition.
+ * 协议接口定义
  *
+ * Protocol interface definition.
  */
 public abstract class TProtocol {
 
   /**
+   * fixme private 防止直接实例化
    * Prevent direct instantiation
    */
   @SuppressWarnings("unused")
@@ -152,7 +154,7 @@ public abstract class TProtocol {
    * be implemented for stateful protocols.
    */
   public void reset() {}
-  
+
   /**
    * Scheme accessor
    */

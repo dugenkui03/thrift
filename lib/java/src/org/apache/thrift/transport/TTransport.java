@@ -22,6 +22,10 @@ package org.apache.thrift.transport;
 import java.io.Closeable;
 
 /**
+ * fixme:
+ *      传输类，用于压缩传输层；
+ *      这基本上是对java IO流组合功能的一个简单包装
+ *
  * Generic class that encapsulates the I/O layer. This is basically a thin
  * wrapper around the combined functionality of Java input/output streams.
  *
@@ -29,6 +33,7 @@ import java.io.Closeable;
 public abstract class TTransport implements Closeable {
 
   /**
+   * 确定传输层是否打开？
    * Queries whether the transport is open.
    *
    * @return True if the transport is open.
@@ -36,6 +41,7 @@ public abstract class TTransport implements Closeable {
   public abstract boolean isOpen();
 
   /**
+   * 确定 远端 是否有更多的数据供给过来
    * Is there more data to be read?
    *
    * @return True if the remote side is still alive and feeding us
@@ -45,6 +51,8 @@ public abstract class TTransport implements Closeable {
   }
 
   /**
+   * 打开传输层用于读写数据
+   *
    * Opens the transport for reading/writing.
    *
    * @throws TTransportException if the transport could not be opened
@@ -53,6 +61,8 @@ public abstract class TTransport implements Closeable {
     throws TTransportException;
 
   /**
+   * 关闭传输层。
+   *
    * Closes the transport.
    */
   public abstract void close();

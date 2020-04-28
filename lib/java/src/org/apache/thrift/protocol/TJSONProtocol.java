@@ -41,9 +41,14 @@ import org.apache.thrift.transport.TTransport;
 public class TJSONProtocol extends TProtocol {
 
   /**
+   * json协议对象的工厂类
+   *
    * Factory for JSON protocol objects
    */
   public static class Factory implements TProtocolFactory {
+    /**
+     * 字段名称是string?
+     */
     protected boolean fieldNamesAsString_ = false;
 
     public Factory() {}
@@ -193,6 +198,7 @@ public class TJSONProtocol extends TProtocol {
 
     protected void read() throws TException {}
 
+    //逃脱数字？
     protected boolean escapeNum() { return false; }
   }
 
@@ -288,7 +294,11 @@ public class TJSONProtocol extends TProtocol {
   // Stack of nested contexts that we may be in
   private Stack<JSONBaseContext> contextStack_ = new Stack<JSONBaseContext>();
 
-  // Current context that we are in
+  /**
+   * 当前所处的上下文？
+   *
+   * Current context that we are in
+   */
   private JSONBaseContext context_ = new JSONBaseContext();
 
   // Reader that manages a 1-byte buffer
@@ -734,7 +744,12 @@ public class TJSONProtocol extends TProtocol {
     return strbld.toString();
   }
 
-  // Read in a JSON number. If the context dictates, read in enclosing quotes.
+  /**
+   * 从json中读取Integer值？
+   *
+   * Read in a JSON number. If the context dictates, read in enclosing quotes.
+   *
+   */
   private long readJSONInteger() throws TException {
     context_.read();
     if (context_.escapeNum()) {
