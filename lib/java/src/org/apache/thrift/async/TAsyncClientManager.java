@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 public class TAsyncClientManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(TAsyncClientManager.class.getName());
 
+  //构造函数中初始化
   private final SelectThread selectThread;
   private final ConcurrentLinkedQueue<TAsyncMethodCall> pendingCalls = new ConcurrentLinkedQueue<TAsyncMethodCall>();
 
@@ -65,8 +66,12 @@ public class TAsyncClientManager {
     return selectThread.isAlive();
   }
 
+  /**
+   * 异步任务
+   */
   private class SelectThread extends Thread {
-    private final Selector selector;
+    private final Selector selector;//todo
+    //是否在运行
     private volatile boolean running;
     private final TreeSet<TAsyncMethodCall> timeoutWatchSet = new TreeSet<TAsyncMethodCall>(new TAsyncMethodCallTimeoutComparator());
 
@@ -188,9 +193,13 @@ public class TAsyncClientManager {
     }
   }
 
-  /** Comparator used in TreeSet */
+  /** Comparator used in TreeSet ：treeSet中使用的比较器*/
   private static class TAsyncMethodCallTimeoutComparator implements Comparator<TAsyncMethodCall>, Serializable {
     public int compare(TAsyncMethodCall left, TAsyncMethodCall right) {
+      /**
+       * 如果超时时间戳不同、则比较超时时间戳——所谓超时时间戳是指：timeout + startTime
+       * 如果超时时间戳相同，则比较序列ID
+       */
       if (left.getTimeoutTimestamp() == right.getTimeoutTimestamp()) {
         return (int)(left.getSequenceId() - right.getSequenceId());
       } else {

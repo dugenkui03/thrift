@@ -19,6 +19,9 @@
 package org.apache.thrift.async;
 
 /**
+ * 异步方法回调：
+ *    异步接口客户端可以实现这个接口实现回调；
+ *
  * A handler interface asynchronous clients can implement to receive future
  * notice of the results of an asynchronous method call.
  *
@@ -26,6 +29,8 @@ package org.apache.thrift.async;
  */
 public interface AsyncMethodCallback<T> {
   /**
+   * 返回结果时调用
+   *
    * This method will be called when the remote side has completed invoking
    * your method call and the result is fully read. For {@code oneway} method
    * calls, this method will be called as soon as we have completed writing out
@@ -33,11 +38,13 @@ public interface AsyncMethodCallback<T> {
    *
    * @param response The return value of the asynchronously invoked method;
    *                 {@code null} for void methods which includes
-   *                 {@code oneway} methods.
+   *                 {@code oneway} methods. 异步调用方法的结果；
    */
   void onComplete(T response);
 
   /**
+   * clneit端出错时调用
+   *
    * This method will be called when there is either an unexpected client-side
    * exception like an IOException or else when the remote method raises an
    * exception, either declared in the IDL or due to an unexpected server-side

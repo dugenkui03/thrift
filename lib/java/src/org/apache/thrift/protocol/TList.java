@@ -33,6 +33,9 @@ public final class TList {
     size = s;
   }
 
+  /**
+   * 元素类型和集合大小
+   */
   public final byte elemType;
   public final int  size;
 }

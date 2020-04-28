@@ -19,11 +19,12 @@
 
 package org.apache.thrift.annotation;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
+ * fixme: 表示一个字段、方法返返回值可能为空，这个注释是为了避免强制的第三方依赖
+ *
  * Annotation indicating a field, method return, or method parameter may be {@code null}.
  * We package our own annotation to avoid a mandatory third-party dependency.
  */

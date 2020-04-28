@@ -20,6 +20,8 @@
 package org.apache.thrift.protocol;
 
 /**
+ * 压缩map的helper类
+ *
  * Helper class that encapsulates map metadata.
  *
  */
@@ -28,13 +30,16 @@ public final class TMap {
     this(TType.STOP, TType.STOP, 0);
   }
 
+  /**
+   * key的类型、value的类型和大小
+   */
+  public final byte  keyType;
+  public final byte  valueType;
+  public final int   size;
+
   public TMap(byte k, byte v, int s) {
     keyType = k;
     valueType = v;
     size = s;
   }
-
-  public final byte  keyType;
-  public final byte  valueType;
-  public final int   size;
 }

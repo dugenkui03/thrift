@@ -45,17 +45,18 @@ import org.apache.thrift.transport.TTransportException;
  */
 public abstract class TAsyncMethodCall<T> {
 
+  //初始化内存大小
   private static final int INITIAL_MEMORY_BUFFER_SIZE = 128;
   private static AtomicLong sequenceIdCounter = new AtomicLong(0);
 
   public static enum State {
-    CONNECTING,
-    WRITING_REQUEST_SIZE,
-    WRITING_REQUEST_BODY,
-    READING_RESPONSE_SIZE,
-    READING_RESPONSE_BODY,
-    RESPONSE_READ,
-    ERROR;
+    CONNECTING,//连接的
+    WRITING_REQUEST_SIZE,//写请求大小
+    WRITING_REQUEST_BODY,//写请求体
+    READING_RESPONSE_SIZE,//读取响应大小
+    READING_RESPONSE_BODY,//读响应体
+    RESPONSE_READ,//响应读取
+    ERROR;//错误
   }
 
   /**
@@ -98,7 +99,7 @@ public abstract class TAsyncMethodCall<T> {
   protected long getStartTime() {
     return startTime;
   }
-  
+
   protected long getSequenceId() {
     return sequenceId;
   }
@@ -106,11 +107,11 @@ public abstract class TAsyncMethodCall<T> {
   public TAsyncClient getClient() {
     return client;
   }
-  
+
   public boolean hasTimeout() {
     return timeout > 0;
   }
-  
+
   public long getTimeoutTimestamp() {
     return timeout + startTime;
   }
