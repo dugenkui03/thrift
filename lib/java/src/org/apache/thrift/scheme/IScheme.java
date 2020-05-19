@@ -22,12 +22,13 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 
+
 public interface IScheme<T extends TBase> {
 
   /**
-   * 通过协议对 对象进行读写
+   * 通过协议，对这种schema定义的对象进行读写
    * @param iproto 二进制协议、json协议、三元组协议等
-   * @param struct 
+   * @param struct
    * @throws TException
    */
     void read(TProtocol iproto, T struct) throws TException;

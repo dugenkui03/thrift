@@ -29,6 +29,7 @@ import java.io.OutputStream;
 /**
  * This is the most commonly used base transport. It takes an InputStream or
  * an OutputStream or both and uses it/them to perform transport operations.
+ *
  * This allows for compatibility with all the nice constructs Java already
  * has to provide a variety of types of streams.
  *

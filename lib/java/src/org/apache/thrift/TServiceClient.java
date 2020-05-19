@@ -37,9 +37,11 @@ public abstract class TServiceClient {
     oprot_ = oprot;
   }
 
+  //input协议、output协议
   protected TProtocol iprot_;
   protected TProtocol oprot_;
 
+  //序列ID?
   protected int seqid_;
 
   /**
@@ -58,6 +60,12 @@ public abstract class TServiceClient {
     return this.oprot_;
   }
 
+  /**
+   * 生成代码client调用该犯法
+   * @param methodName  接口名称
+   * @param args  参数，也是TBase的实现类
+   * @throws TException
+   */
   protected void sendBase(String methodName, TBase<?,?> args) throws TException {
     sendBase(methodName, args, TMessageType.CALL);
   }
@@ -66,9 +74,18 @@ public abstract class TServiceClient {
     sendBase(methodName, args, TMessageType.ONEWAY);
   }
 
+  /**
+   * @param methodName  接口名称
+   * @param args 参数，也是TBase的实现类
+   * @param type 消息类型：请求、响应、异常等
+   */
   private void sendBase(String methodName, TBase<?,?> args, byte type) throws TException {
-    oprot_.writeMessageBegin(new TMessage(methodName, type, ++seqid_));
+    TMessage tMessage = new TMessage(methodName, type, ++seqid_);
+
+    //开始写消息
+    oprot_.writeMessageBegin(tMessage);
     args.write(oprot_);
+    //结束写消息
     oprot_.writeMessageEnd();
     oprot_.getTransport().flush();
   }

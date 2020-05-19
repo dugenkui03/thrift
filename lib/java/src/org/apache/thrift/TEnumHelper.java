@@ -25,11 +25,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
+ * 带有静态方法的、协助TEnum完成工作的带有静态方法的工具类
+ *
  * Utility class with static methods for interacting with TEnum
  */
 public class TEnumHelper {
 
   /**
+   * 利用反射，从枚举类中取值，不好～～
+   *
    * Given a TEnum class and integer value, this method will return
    * the associated constant from the given TEnum class.
    * This method MUST be modified should the name of the 'findByValue' method

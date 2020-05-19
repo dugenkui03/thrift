@@ -166,6 +166,7 @@ public abstract class TTransport implements Closeable {
   }
 
   /**
+   * 从底层缓存区消耗lean个字节
    * Consume len bytes from the underlying buffer.
    * @param len
    */

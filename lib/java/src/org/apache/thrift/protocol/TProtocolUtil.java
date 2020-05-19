@@ -22,8 +22,9 @@ package org.apache.thrift.protocol;
 import org.apache.thrift.TException;
 
 /**
- * Utility class with static methods for interacting with protocol data
- * streams.
+ * 与协议数据流进行交互的方法类。
+ *
+ * Utility class with static methods for interacting with protocol data streams.
  *
  */
 public class TProtocolUtil {

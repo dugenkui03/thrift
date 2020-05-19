@@ -30,6 +30,8 @@ import java.net.Socket;
 import java.net.SocketException;
 
 /**
+ * fixme TTransport接口的套接字实现
+ *
  * Socket implementation of the TTransport interface. To be commented soon!
  *
  */
@@ -38,27 +40,27 @@ public class TSocket extends TIOStreamTransport {
   private static final Logger LOGGER = LoggerFactory.getLogger(TSocket.class.getName());
 
   /**
-   * Wrapped Socket object
+   * Wrapped Socket object：被包装的套接字
    */
   private Socket socket_;
 
   /**
-   * Remote host
+   * Remote host：远端host；
    */
   private String host_;
 
   /**
-   * Remote port
+   * Remote port：远端端口
    */
   private int port_;
 
   /**
-   * Socket timeout - read timeout on the socket
+   * Socket timeout - read timeout on the socket：socket读超时；
    */
   private int socketTimeout_;
 
   /**
-   * Connection timeout
+   * Connection timeout：链接超时；
    */
   private int connectTimeout_;
 

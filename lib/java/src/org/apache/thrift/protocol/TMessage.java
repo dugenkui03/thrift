@@ -20,10 +20,17 @@
 package org.apache.thrift.protocol;
 
 /**
- * Helper class that encapsulates struct metadata.
+ * 压缩struct元数据的协助类
  *
+ * Helper class that encapsulates struct metadata.
  */
 public final class TMessage {
+
+  //名称、什么类型和序列ID
+  public final String name;
+  public final byte type;
+  public final int seqid;
+
   public TMessage() {
     this("", TType.STOP, 0);
   }
@@ -33,10 +40,6 @@ public final class TMessage {
     type = t;
     seqid = s;
   }
-
-  public final String name;
-  public final byte type;
-  public final int seqid;
 
   @Override
   public String toString() {

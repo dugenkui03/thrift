@@ -20,10 +20,17 @@
 package org.apache.thrift.protocol;
 
 /**
- * Message type constants in the Thrift protocol.
+ * fixme thrift协议的消息类型；
  *
+ * Message type constants in the Thrift protocol.
  */
 public final class TMessageType {
+  /**
+   * 请求/调用
+   * 响应
+   * 异常
+   * TODO
+   */
   public static final byte CALL  = 1;
   public static final byte REPLY = 2;
   public static final byte EXCEPTION = 3;

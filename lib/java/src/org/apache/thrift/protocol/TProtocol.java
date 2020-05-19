@@ -62,7 +62,6 @@ public abstract class TProtocol {
   /**
    * Writing methods.
    */
-
   public abstract void writeMessageBegin(TMessage message) throws TException;
 
   public abstract void writeMessageEnd() throws TException;
@@ -156,6 +155,7 @@ public abstract class TProtocol {
   public void reset() {}
 
   /**
+   * schema存取器
    * Scheme accessor
    */
   public Class<? extends IScheme> getScheme() {

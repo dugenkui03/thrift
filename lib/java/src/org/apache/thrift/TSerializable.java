@@ -23,11 +23,12 @@ import org.apache.thrift.protocol.TProtocol;
 
 /**
  * Generic base interface for generated Thrift objects.
- *
  */
 public interface TSerializable {
 
   /**
+   * 从输入协议中读取对象。
+   *
    * Reads the TObject from the given input protocol.
    *
    * @param iprot Input protocol

@@ -25,15 +25,27 @@ import org.apache.thrift.scheme.IScheme;
 import org.apache.thrift.scheme.TupleScheme;
 import org.apache.thrift.transport.TTransport;
 
+/**
+ * 元组协议，继承自压缩协议
+ */
 public final class TTupleProtocol extends TCompactProtocol {
+
+
   public static class Factory implements TProtocolFactory {
     public Factory() {}
 
+    /**
+     * 使用指定的传输类、创建元祖协议
+     */
     public TProtocol getProtocol(TTransport trans) {
       return new TTupleProtocol(trans);
     }
   }
 
+
+  /**
+   * 继承自压缩协议
+   */
   public TTupleProtocol(TTransport transport) {
     super(transport);
   }
@@ -42,6 +54,7 @@ public final class TTupleProtocol extends TCompactProtocol {
   public Class<? extends IScheme> getScheme() {
     return TupleScheme.class;
   }
+
 
   public void writeBitSet(BitSet bs, int vectorWidth) throws TException {
     byte[] bytes = toByteArray(bs, vectorWidth);
@@ -80,9 +93,9 @@ public final class TTupleProtocol extends TCompactProtocol {
    * extension). The byte-ordering of the result is big-endian which means the
    * most significant bit is in element 0. The bit at index 0 of the bit set is
    * assumed to be the least significant bit.
-   * 
+   *
    * @param bits
-   * @param vectorWidth 
+   * @param vectorWidth
    * @return a byte array of at least length 1
    */
   public static byte[] toByteArray(BitSet bits, int vectorWidth) {
