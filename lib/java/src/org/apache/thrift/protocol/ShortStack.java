@@ -42,7 +42,11 @@ class ShortStack {
 
   public void push(short pushed) {
     if (vector.length == top) {
-      grow();
+      synchronized (this) {
+        if (vector.length == top) {
+          grow();
+        }
+      }
     }
     vector[top++] = pushed;
   }
