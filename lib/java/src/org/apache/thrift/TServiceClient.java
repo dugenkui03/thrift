@@ -76,12 +76,11 @@ public abstract class TServiceClient {
 
   /**
    * @param methodName  接口名称
-   * @param args 参数，也是TBase的实现类
+   * @param args 参数的包装类，也是TBase的实现类
    * @param type 消息类型：请求、响应、异常等
    */
   private void sendBase(String methodName, TBase<?,?> args, byte type) throws TException {
     TMessage tMessage = new TMessage(methodName, type, ++seqid_);
-
     //开始写消息
     oprot_.writeMessageBegin(tMessage);
     args.write(oprot_);
@@ -90,6 +89,10 @@ public abstract class TServiceClient {
     oprot_.getTransport().flush();
   }
 
+  /**
+   * @param result 对结果的包装
+   * @param methodName 方法名称
+   */
   protected void receiveBase(TBase<?,?> result, String methodName) throws TException {
     TMessage msg = iprot_.readMessageBegin();
     if (msg.type == TMessageType.EXCEPTION) {

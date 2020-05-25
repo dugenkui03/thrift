@@ -58,9 +58,8 @@ public final class StringUtils {
     if (offset < 0) {
       throw new IndexOutOfBoundsException("Negative start offset " + offset);
     }
-    if ((offset | length | (offset + length) | (bytes.length - (offset + bytes.length))) < 0)
-      throw new IndexOutOfBoundsException(" bytes.length: " + bytes.length + "offset: " + offset + " length: " + length);
 
+    //todo if(offset+length>bytes.length)
 
     char[] chars = new char[length * 2];
     for (int i = 0; i < length; i++) {

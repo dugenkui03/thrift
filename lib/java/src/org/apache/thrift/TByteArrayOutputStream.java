@@ -23,9 +23,9 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 
 /**
- * Class that allows access to the underlying buf without doing deep
- * copies on it.
+ * 该类可在不进行 deepCopy 的情况下、访问其数据。
  *
+ * Class that allows access to the underlying buf without doing deep copies on it.
  */
 public class TByteArrayOutputStream extends ByteArrayOutputStream {
 
@@ -40,17 +40,21 @@ public class TByteArrayOutputStream extends ByteArrayOutputStream {
     this(32);
   }
 
+  //fixme get the buffer where data is stored
   public byte[] get() {
     return buf;
   }
 
   public void reset() {
+    // count = 0: The number of valid bytes in the buffer.
     super.reset();
     if (buf.length > initialSize) {
+      //初始化缓存区
       buf = new byte[initialSize];
     }
   }
 
+  //获取缓存区大小
   public int len() {
     return count;
   }

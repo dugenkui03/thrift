@@ -108,6 +108,9 @@ public abstract class TProtocol {
    * Reading methods.
    */
 
+  /**
+   * 开始读取数据
+   */
   public abstract TMessage readMessageBegin() throws TException;
 
   public abstract void readMessageEnd() throws TException;

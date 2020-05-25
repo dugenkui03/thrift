@@ -68,12 +68,14 @@ public abstract class TTransport implements Closeable {
   public abstract void close();
 
   /**
+   * 将该对象包装的数据放进缓存数组中
+   *
    * Reads up to len bytes into buffer buf, starting at offset off.
    *
-   * @param buf Array to read into
-   * @param off Index to start reading at
-   * @param len Maximum number of bytes to read
-   * @return The number of bytes actually read
+   * @param buf Array to read into 存储数据的数组
+   * @param off Index to start reading at 开始读取数据的偏移量
+   * @param len Maximum number of bytes to read 可以读取的最大字节数量
+   * @return The number of bytes actually read 实际读取的字节数量—>因为指定的长度可能超过了最大长度
    * @throws TTransportException if there was an error reading data
    */
   public abstract int read(byte[] buf, int off, int len)

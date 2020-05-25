@@ -20,8 +20,9 @@
 package org.apache.thrift.protocol;
 
 /**
- * Helper class that encapsulates struct metadata.
+ * 封装结构元数据的协助类
  *
+ * Helper class that encapsulates struct metadata.
  */
 public final class TStruct {
   public TStruct() {

@@ -23,10 +23,31 @@ import org.apache.thrift.TByteArrayOutputStream;
 import java.nio.charset.Charset;
 
 /**
+ * 基于内存缓冲实现的TTransport接口
+ *
  * Memory buffer-based implementation of the TTransport interface.
  */
 public class TMemoryBuffer extends TTransport {
+
+  // The contents of the buffer 缓存内容
+  private TByteArrayOutputStream arr_;
+
+  // Position to read next byte from 开始读取数据的位置
+  private int pos_;
+
+  //数据的大小
+  public int length() {
+    return arr_.size();
+  }
+
+  //get the buffer where data is stored
+  public byte[] getArray() {
+    return arr_.get();
+  }
+
   /**
+   * 使用指定大小初始化对象
+   *
    * Create a TMemoryBuffer with an initial buffer size of <i>size</i>. The
    * internal buffer will grow as necessary to accommodate the size of the data
    * being written to it.
@@ -55,8 +76,12 @@ public class TMemoryBuffer extends TTransport {
   @Override
   public int read(byte[] buf, int off, int len) {
     byte[] src = arr_.get();
+    //可读取的元素数量、也是实际要读取的元素数量
     int amtToRead = (len > arr_.len() - pos_ ? arr_.len() - pos_ : len);
+
+    //拷贝缓存区数据到目标数组
     if (amtToRead > 0) {
+      //源数组、源数据要拷贝起始位置；目标数据、目标数组存放数据的起始位置；拷贝数据长度
       System.arraycopy(src, pos_, buf, off, amtToRead);
       pos_ += amtToRead;
     }
@@ -87,18 +112,5 @@ public class TMemoryBuffer extends TTransport {
     return buf.toString();
   }
 
-  // The contents of the buffer
-  private TByteArrayOutputStream arr_;
-
-  // Position to read next byte from
-  private int pos_;
-
-  public int length() {
-    return arr_.size();
-  }
-
-  public byte[] getArray() {
-    return arr_.get();
-  }
 }
 

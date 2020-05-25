@@ -21,6 +21,8 @@ package org.apache.thrift.protocol;
 import java.util.Arrays;
 
 /**
+ * 特定长度的栈，比java.util.Stack快10倍。
+ *
  * ShortStack is a short-specific Stack implementation written for the express
  * purpose of very fast operations on TCompactProtocol's field id stack. This
  * implementation performs at least 10x faster than java.util.Stack.
@@ -29,17 +31,21 @@ class ShortStack {
 
   private short[] vector;
 
+  //总是指向下一个位置
   /** Always points to the next location */
   private int top = 0;
 
+  //使用指定的初始大小、初始化栈对象
   public ShortStack(int initialCapacity) {
     vector = new short[initialCapacity];
   }
 
+  //出栈
   public short pop() {
     return vector[--top];
   }
 
+  //进栈
   public void push(short pushed) {
     if (vector.length == top) {
       grow();

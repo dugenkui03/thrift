@@ -28,8 +28,7 @@ public interface IScheme<T extends TBase> {
   /**
    * 通过协议，对这种schema定义的对象进行读写
    * @param iproto 二进制协议、json协议、三元组协议等
-   * @param struct
-   * @throws TException
+   * @param struct 要进行读写的对象
    */
     void read(TProtocol iproto, T struct) throws TException;
 

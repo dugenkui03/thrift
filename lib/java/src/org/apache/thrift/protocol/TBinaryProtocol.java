@@ -26,8 +26,9 @@ import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransport;
 
 /**
- * Binary protocol implementation for thrift.
+ * thrift的二进制协议实现
  *
+ * Binary protocol implementation for thrift.
  */
 public class TBinaryProtocol extends TProtocol {
   private static final TStruct ANONYMOUS_STRUCT = new TStruct();
