@@ -27,6 +27,8 @@ import org.apache.thrift.transport.TServerTransport;
 import org.apache.thrift.transport.TTransportFactory;
 
 /**
+ * thrift服务的通用接口
+ *
  * Generic interface for a Thrift server.
  *
  */

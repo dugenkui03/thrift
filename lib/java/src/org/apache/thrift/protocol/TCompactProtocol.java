@@ -20,7 +20,6 @@
 
 package org.apache.thrift.protocol;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
@@ -113,6 +112,8 @@ public class TCompactProtocol extends TProtocol {
   }
 
   /**
+   * 用于跟踪当前和和之前结构的最后一个字段，以此执行 delta stuff。
+   *
    * Used to keep track of the last field for the current and previous structs,
    * so we can do the delta stuff.
    */

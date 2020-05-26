@@ -26,7 +26,7 @@ package org.apache.thrift.protocol;
  */
 public final class TMessage {
 
-  //名称、什么类型和序列ID
+  //方法名称
   public final String name;
   public final byte type;
   public final int seqid;

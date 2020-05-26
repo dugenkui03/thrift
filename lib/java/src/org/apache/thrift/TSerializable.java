@@ -22,6 +22,8 @@ package org.apache.thrift;
 import org.apache.thrift.protocol.TProtocol;
 
 /**
+ * 生成Thrift对象的通用基础接口。
+ *
  * Generic base interface for generated Thrift objects.
  */
 public interface TSerializable {
@@ -36,6 +38,8 @@ public interface TSerializable {
   public void read(TProtocol iprot) throws TException;
 
   /**
+   * 写入数据到指定协议。
+   *
    * Writes the objects out to the protocol
    *
    * @param oprot Output protocol

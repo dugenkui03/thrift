@@ -22,8 +22,9 @@ package org.apache.thrift;
 import org.apache.thrift.protocol.TProtocol;
 
 /**
- * A processor is a generic object which operates upon an input stream and
- * writes to some output stream.
+ * 一般是对输入输出流进行操作的通用对象：输入输出流对应 输入输出协议。
+ *
+ * A processor is a generic object which operates upon an input stream and writes to some output stream.
  */
 public interface TProcessor {
   public void process(TProtocol in, TProtocol out) throws TException;

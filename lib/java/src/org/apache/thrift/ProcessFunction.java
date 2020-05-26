@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class ProcessFunction<I, T extends TBase> {
+
+  //方法名称
   private final String methodName;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ProcessFunction.class.getName());
@@ -17,6 +19,12 @@ public abstract class ProcessFunction<I, T extends TBase> {
     this.methodName = methodName;
   }
 
+  /**
+   * @param seqid 序列id
+   * @param iprot 输入协议
+   * @param oprot 输出协议
+   * @param iface 在抽象方法 getResult 中被调用，每个方法都实现了getResult
+   */
   public final void process(int seqid, TProtocol iprot, TProtocol oprot, I iface) throws TException {
     T args = getEmptyArgsInstance();
     try {
@@ -78,8 +86,16 @@ public abstract class ProcessFunction<I, T extends TBase> {
 
   protected abstract boolean isOneway();
 
+  /**
+   * 每个接口都实现了
+   * @param iface
+   * @param args
+   * @return
+   * @throws TException
+   */
   public abstract TBase getResult(I iface, T args) throws TException;
 
+  //获取空参数对象
   public abstract T getEmptyArgsInstance();
 
   public String getMethodName() {

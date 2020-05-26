@@ -23,6 +23,8 @@ import java.util.Arrays;
 /**
  * 特定长度的栈，比java.util.Stack快10倍。
  *
+ * fixme 非public类，所以使用场景如果是"线程安全"的，就不会存在线程安全问题。
+ *
  * ShortStack is a short-specific Stack implementation written for the express
  * purpose of very fast operations on TCompactProtocol's field id stack. This
  * implementation performs at least 10x faster than java.util.Stack.

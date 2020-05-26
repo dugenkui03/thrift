@@ -55,7 +55,7 @@ public class TProtocolUtil {
   /**
    * Skips over the next data element from the provided input TProtocol object.
    *
-   * @param prot  the protocol object to read from
+   * @param prot  the protocol object to read from 读取数据的协议
    * @param type  the next value will be interpreted as this TType value.
    */
   public static void skip(TProtocol prot, byte type)
