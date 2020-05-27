@@ -63,20 +63,29 @@ public class TJSONProtocol extends TProtocol {
 
   }
 
+  //逗号
   private static final byte[] COMMA = new byte[] {','};
+  //冒号
   private static final byte[] COLON = new byte[] {':'};
+  //左大括号
   private static final byte[] LBRACE = new byte[] {'{'};
+  //右打括号
   private static final byte[] RBRACE = new byte[] {'}'};
+  //左中括号
   private static final byte[] LBRACKET = new byte[] {'['};
+  //右中括号
   private static final byte[] RBRACKET = new byte[] {']'};
+  //双引号
   private static final byte[] QUOTE = new byte[] {'"'};
+  //反斜杠
   private static final byte[] BACKSLASH = new byte[] {'\\'};
+  //零
   private static final byte[] ZERO = new byte[] {'0'};
-
+  //反斜杠、u、0、0
   private static final byte[] ESCSEQ = new byte[] {'\\','u','0','0'};
-
+  //版本
   private static final long  VERSION = 1;
-
+  //json字符串表
   private static final byte[] JSON_CHAR_TABLE = {
     /*  0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F */
     0,  0,  0,  0,  0,  0,  0,  0,'b','t','n',  0,'f','r',  0,  0, // 0
@@ -84,12 +93,15 @@ public class TJSONProtocol extends TProtocol {
     1,  1,'"',  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, // 2
   };
 
+  //换码？逃出
   private static final String ESCAPE_CHARS = "\"\\/bfnrt";
 
+  //换码_码值：双引号、反斜杠、斜杠、b、f、n、r、t
   private static final byte[] ESCAPE_CHAR_VALS = {
     '"', '\\', '/', '\b', '\f', '\n', '\r', '\t',
   };
 
+  //定义字符串大小？
   private static final int  DEF_STRING_SIZE = 16;
 
   private static final byte[] NAME_BOOL = new byte[] {'t', 'f'};

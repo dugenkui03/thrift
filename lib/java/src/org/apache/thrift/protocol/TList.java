@@ -21,7 +21,6 @@ package org.apache.thrift.protocol;
 
 /**
  * Helper class that encapsulates list metadata.
- *
  */
 public final class TList {
   public TList() {

@@ -41,6 +41,7 @@ public abstract class TProtocol {
   private TProtocol() {}
 
   /**
+   * 协议将数据进行包装后、使用传输层的流工具进行数据传输
    * Transport
    */
   protected TTransport trans_;
@@ -60,95 +61,94 @@ public abstract class TProtocol {
   }
 
   /**
-   * Writing methods.
+   * Writing methods：读表示从流中读取到byte缓存区；
+   */
+
+  /**
+   * 读TMessage、读TStruct、TField、Stop
    */
   public abstract void writeMessageBegin(TMessage message) throws TException;
-
   public abstract void writeMessageEnd() throws TException;
 
   public abstract void writeStructBegin(TStruct struct) throws TException;
-
   public abstract void writeStructEnd() throws TException;
 
   public abstract void writeFieldBegin(TField field) throws TException;
-
   public abstract void writeFieldEnd() throws TException;
 
   public abstract void writeFieldStop() throws TException;
 
+  /**
+   * 集合类型：Map、List、Set
+   */
   public abstract void writeMapBegin(TMap map) throws TException;
-
   public abstract void writeMapEnd() throws TException;
 
   public abstract void writeListBegin(TList list) throws TException;
-
   public abstract void writeListEnd() throws TException;
 
   public abstract void writeSetBegin(TSet set) throws TException;
-
   public abstract void writeSetEnd() throws TException;
 
+  /**
+   * 基本类型：boolean、short、byte、int、long、double
+   */
   public abstract void writeBool(boolean b) throws TException;
-
   public abstract void writeByte(byte b) throws TException;
-
   public abstract void writeI16(short i16) throws TException;
-
   public abstract void writeI32(int i32) throws TException;
-
   public abstract void writeI64(long i64) throws TException;
-
   public abstract void writeDouble(double dub) throws TException;
-
   public abstract void writeString(String str) throws TException;
 
+  /**
+   * 二进制
+   */
   public abstract void writeBinary(ByteBuffer buf) throws TException;
 
   /**
-   * Reading methods.
+   * Reading methods：写表示从byte写到流中
    */
 
   /**
-   * 开始读取数据
+   * TMessage、TStruct、TField
    */
   public abstract TMessage readMessageBegin() throws TException;
-
   public abstract void readMessageEnd() throws TException;
 
   public abstract TStruct readStructBegin() throws TException;
-
   public abstract void readStructEnd() throws TException;
 
   public abstract TField readFieldBegin() throws TException;
-
   public abstract void readFieldEnd() throws TException;
 
-  public abstract TMap readMapBegin() throws TException;
 
+  /**
+   * 集合
+   */
+  public abstract TMap readMapBegin() throws TException;
   public abstract void readMapEnd() throws TException;
 
   public abstract TList readListBegin() throws TException;
-
   public abstract void readListEnd() throws TException;
 
   public abstract TSet readSetBegin() throws TException;
-
   public abstract void readSetEnd() throws TException;
 
+  /**
+   * 基本类型
+   */
   public abstract boolean readBool() throws TException;
-
   public abstract byte readByte() throws TException;
-
   public abstract short readI16() throws TException;
-
   public abstract int readI32() throws TException;
-
   public abstract long readI64() throws TException;
-
   public abstract double readDouble() throws TException;
-
   public abstract String readString() throws TException;
 
+  /**
+   * 二进制
+   */
   public abstract ByteBuffer readBinary() throws TException;
 
   /**
@@ -158,7 +158,7 @@ public abstract class TProtocol {
   public void reset() {}
 
   /**
-   * schema存取器
+   * schema访问器
    * Scheme accessor
    */
   public Class<? extends IScheme> getScheme() {

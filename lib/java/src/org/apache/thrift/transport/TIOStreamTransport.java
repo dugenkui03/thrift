@@ -27,11 +27,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
+ * 最常用的基本传输：使用一个输入/输出流作为属性，进行传输操作。
+ *
+ *
  * This is the most commonly used base transport. It takes an InputStream or
  * an OutputStream or both and uses it/them to perform transport operations.
  *
- * This allows for compatibility with all the nice constructs Java already
- * has to provide a variety of types of streams.
+ * ？？
+ * This allows for compatibility(兼容性) with all the nice constructs Java already
+ * has to provide a variety of(各种各样的) types of streams.
  *
  */
 public class TIOStreamTransport extends TTransport {
@@ -80,6 +84,7 @@ public class TIOStreamTransport extends TTransport {
   }
 
   /**
+   * 输入输出流、有一个部位null，则表示传输层打开了
    *
    * @return false after close is called.
    */
@@ -93,6 +98,8 @@ public class TIOStreamTransport extends TTransport {
   public void open() throws TTransportException {}
 
   /**
+   * 关闭输入输出流：调用close、然后赋值为null
+   *
    * Closes both the input and output streams.
    */
   public void close() {
@@ -118,18 +125,24 @@ public class TIOStreamTransport extends TTransport {
   }
 
   /**
+   * 从输入流中读取数据到buf：从buf的off位置开始写数据。
+   *
    * Reads from the underlying input stream if not null.
    */
   public int read(byte[] buf, int off, int len) throws TTransportException {
+    //输入流未创建、抛异常
     if (inputStream_ == null) {
       throw new TTransportException(TTransportException.NOT_OPEN, "Cannot read from null inputStream");
     }
+
+    //the total number of bytes read into the buffer,
     int bytesRead;
     try {
       bytesRead = inputStream_.read(buf, off, len);
     } catch (IOException iox) {
       throw new TTransportException(TTransportException.UNKNOWN, iox);
     }
+    // or -1 if there is no more data because the end of the stream has been reached.
     if (bytesRead < 0) {
       throw new TTransportException(TTransportException.END_OF_FILE, "Socket is closed by peer.");
     }
@@ -137,6 +150,8 @@ public class TIOStreamTransport extends TTransport {
   }
 
   /**
+   * 从buf指定的位置开始，写最多len长度的数据到输出流中
+   *
    * Writes to the underlying output stream if not null.
    */
   public void write(byte[] buf, int off, int len) throws TTransportException {
@@ -151,7 +166,13 @@ public class TIOStreamTransport extends TTransport {
   }
 
   /**
+   * 迫使所有缓冲的输出数据被写出到底层输出流中/
+   * 刷新输出流缓存区中的数据到目标位置：
+   *  1. 如果不flush就close，可能会丢失数据；
+   *
+   *
    * Flushes the underlying output stream if not null.
+   * https://blog.csdn.net/dabing69221/article/details/16996877
    */
   public void flush() throws TTransportException {
     if (outputStream_ == null) {

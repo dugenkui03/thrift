@@ -44,6 +44,7 @@ public abstract class TUnion<T extends TUnion<T,F>, F extends TFieldIdEnum> impl
     value_ = null;
   }
 
+  //不同的ISchema.class 对应的工厂类
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
     schemes.put(StandardScheme.class, new TUnionStandardSchemeFactory());

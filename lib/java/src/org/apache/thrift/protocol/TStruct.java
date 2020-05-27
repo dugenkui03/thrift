@@ -29,6 +29,7 @@ public final class TStruct {
     this("");
   }
 
+  //每个自定义的TBase实现类都有一个TStruct属性，其构造参数变量为类名称
   public TStruct(String n) {
     name = n;
   }

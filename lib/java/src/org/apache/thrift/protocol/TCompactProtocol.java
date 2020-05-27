@@ -212,13 +212,19 @@ public class TCompactProtocol extends TProtocol {
   }
 
   /**
+   * 开始写数据到协议中，实际上并没有写任何数据。
+   *
+   * 以此为契机在字段堆栈上防止特殊的占位符，以便获取正确的 field_id 增量。
+   *
    * Write a struct begin. This doesn't actually put anything on the wire. We
    * use it as an opportunity to put special placeholder markers on the field
    * stack so we can get the field id deltas correct.
    */
   @Override
   public void writeStructBegin(TStruct struct) throws TException {
+    //字段id增量？
     lastField_.push(lastFieldId_);
+
     lastFieldId_ = 0;
   }
 

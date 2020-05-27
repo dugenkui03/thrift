@@ -23,6 +23,10 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 
 
+/**
+ * 自动生成的代码中继承了这个接口，对其每个字段进行读写遍历等，
+ * 使用指定的协议、对数据进行读写
+ */
 public interface IScheme<T extends TBase> {
 
   /**
