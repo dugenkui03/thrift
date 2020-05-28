@@ -219,7 +219,7 @@ public abstract class TUnion<T extends TUnion<T,F>, F extends TFieldIdEnum> impl
       struct.value_ = null;
 
       /**
-       * 1. 开始读取 自定义类
+       * 开始读取 自定义类
        */
       iprot.readStructBegin();
 

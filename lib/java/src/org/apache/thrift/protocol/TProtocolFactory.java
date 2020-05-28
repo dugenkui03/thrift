@@ -24,7 +24,7 @@ import java.io.Serializable;
 import org.apache.thrift.transport.TTransport;
 
 /**
- * 构造协议对象的工厂接口
+ * fixme 构造协议对象的工厂接口
  *
  * Factory interface for constructing protocol instances.
  */

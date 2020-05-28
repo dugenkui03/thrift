@@ -20,6 +20,7 @@
 package org.apache.thrift.protocol;
 
 /**
+ * fixme 对Base64进行编码、解码的工具类。源数据、目标数据都存放在byte数组中。
  * Class for encoding and decoding Base64 data.
  *
  * This class is kept at package level because the interface does no input
@@ -34,6 +35,7 @@ package org.apache.thrift.protocol;
  */
 class TBase64Utils {
 
+  //编码表：字母、数字、 "+"、"/"
   private static final String ENCODE_TABLE =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -44,11 +46,11 @@ class TBase64Utils {
    * method does no validation of the input values in the interest of
    * performance.
    *
-   * @param src  the source of bytes to encode
+   * @param src  the source of bytes to encode 要进行编码的数据
    * @param srcOff  the offset into the source to read the unencoded bytes
    * @param len  the number of bytes to encode (must be 1, 2, or 3).
-   * @param dst  the destination for the encoding
-   * @param dstOff  the offset into the destination to place the encoded bytes
+   * @param dst  the destination for the encoding 编码进行存储的目标位置
+   * @param dstOff  the offset into the destination to place the encoded bytes 目标位置开始存放的起始位置
    */
   static final void encode(byte[] src, int srcOff, int len,  byte[] dst,
                            int dstOff) {
@@ -76,6 +78,7 @@ class TBase64Utils {
     }
   }
 
+  //解码表
   private static final byte[] DECODE_TABLE = {
     -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
     -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,

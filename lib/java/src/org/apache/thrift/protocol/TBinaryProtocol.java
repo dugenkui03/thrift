@@ -26,7 +26,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransport;
 
 /**
- * thrift的二进制协议实现
+ * fixme thrift的二进制协议实现
  *
  * Binary protocol implementation for thrift.
  */
@@ -59,20 +59,27 @@ public class TBinaryProtocol extends TProtocol {
    * Factory
    */
   public static class Factory implements TProtocolFactory {
+    //限制的长度
     protected long stringLengthLimit_;
     protected long containerLengthLimit_;
+
+    //严格读取？
     protected boolean strictRead_;
+    //严格写入？
     protected boolean strictWrite_;
 
+    //读宽松、写严格
     public Factory() {
       this(false, true);
     }
 
     public Factory(boolean strictRead, boolean strictWrite) {
+      //-1表示长度没有限制
       this(strictRead, strictWrite, NO_LENGTH_LIMIT, NO_LENGTH_LIMIT);
     }
 
     public Factory(long stringLengthLimit, long containerLengthLimit) {
+      //也是默认 读宽松、写严格
       this(false, true, stringLengthLimit, containerLengthLimit);
     }
 
@@ -83,6 +90,7 @@ public class TBinaryProtocol extends TProtocol {
       strictWrite_ = strictWrite;
     }
 
+    //fixme 默认读宽松、写严格，长度没有限制
     public TProtocol getProtocol(TTransport trans) {
       return new TBinaryProtocol(trans, stringLengthLimit_, containerLengthLimit_, strictRead_, strictWrite_);
     }
