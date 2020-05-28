@@ -20,8 +20,9 @@
 package org.apache.thrift;
 
 /**
- * Generic exception class for Thrift.
+ * thrift的通用异常。
  *
+ * Generic exception class for Thrift.
  */
 public class TException extends Exception {
 
@@ -31,14 +32,17 @@ public class TException extends Exception {
     super();
   }
 
+  //异常信息
   public TException(String message) {
     super(message);
   }
 
+  //异常对象
   public TException(Throwable cause) {
     super(cause);
   }
 
+  //异常信息和异常对象
   public TException(String message, Throwable cause) {
     super(message, cause);
   }

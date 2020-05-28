@@ -27,8 +27,13 @@ import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransport;
 
 /**
+ * thrift的JSON协议实现。该协议是只写的，并且其格式适合通过脚本
+ * 语言进行解析。不应该将其于功能完善的JSONProtocol协议进行混淆。
+ *
+ * <P></P>
  * JSON protocol implementation for thrift.
  *
+ * <P></P>
  * This protocol is write-only and produces a simple output format
  * suitable for parsing by scripting languages.  It should not be
  * confused with the full-featured TJSONProtocol.

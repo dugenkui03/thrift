@@ -26,10 +26,6 @@ package org.apache.thrift.protocol;
  *
  */
 public final class TMap {
-  public TMap() {
-    this(TType.STOP, TType.STOP, 0);
-  }
-
   /**
    * key的类型、value的类型和大小
    */
@@ -41,5 +37,9 @@ public final class TMap {
     keyType = k;
     valueType = v;
     size = s;
+  }
+
+  public TMap() {
+    this(TType.STOP, TType.STOP, 0);
   }
 }

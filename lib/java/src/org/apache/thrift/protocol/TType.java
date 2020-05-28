@@ -20,6 +20,7 @@
 package org.apache.thrift.protocol;
 
 /**
+ * thrift协议中的类型常量
  * Type constants in the Thrift protocol.
  */
 public final class TType {

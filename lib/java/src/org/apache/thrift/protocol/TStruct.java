@@ -25,14 +25,16 @@ package org.apache.thrift.protocol;
  * Helper class that encapsulates struct metadata.
  */
 public final class TStruct {
-  public TStruct() {
-    this("");
-  }
+
+  //类名称
+  public final String name;
 
   //每个自定义的TBase实现类都有一个TStruct属性，其构造参数变量为类名称
   public TStruct(String n) {
     name = n;
   }
 
-  public final String name;
+  public TStruct() {
+    this("");
+  }
 }

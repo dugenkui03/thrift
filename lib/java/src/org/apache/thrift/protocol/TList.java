@@ -20,9 +20,18 @@
 package org.apache.thrift.protocol;
 
 /**
+ * 压缩list元数据的协助类
+ *
  * Helper class that encapsulates list metadata.
  */
 public final class TList {
+
+  /**
+   * 元素类型和集合大小
+   */
+  public final byte elemType;
+  public final int  size;
+
   public TList() {
     this(TType.STOP, 0);
   }
@@ -31,10 +40,4 @@ public final class TList {
     elemType = t;
     size = s;
   }
-
-  /**
-   * 元素类型和集合大小
-   */
-  public final byte elemType;
-  public final int  size;
 }

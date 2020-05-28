@@ -24,6 +24,10 @@ import org.apache.thrift.TException;
 import java.nio.ByteBuffer;
 
 /**
+ * 协议装饰器：
+ *      fixme:
+ *           继承协议、组合使用协议。
+ *
  * <code>TProtocolDecorator</code> forwards all requests to an enclosed
  * <code>TProtocol</code> instance, providing a way to author concise
  * concrete decorator subclasses.  While it has no abstract methods, it
@@ -31,21 +35,26 @@ import java.nio.ByteBuffer;
  * the behaviour of the enclosed <code>TProtocol</code>.
  *
  * <p>See p.175 of Design Patterns (by Gamma et al.)</p>
- * 
+ *
  * @see org.apache.thrift.protocol.TMultiplexedProtocol
  */
 public abstract class TProtocolDecorator extends TProtocol {
 
+    //具体使用的协议
     private final TProtocol concreteProtocol;
 
     /**
-     * Encloses the specified protocol.
+     * Encloses the specified protocol.使用具体的协议构造对象
      * @param protocol All operations will be forward to this protocol.  Must be non-null.
      */
     public TProtocolDecorator(TProtocol protocol) {
         super(protocol.getTransport());
         concreteProtocol = protocol;
     }
+
+    /**
+     * 读写如下类型：Message、TStruct、TField、TMap、TList、TSet、基本类型、二进制
+     */
 
     public void writeMessageBegin(TMessage tMessage) throws TException {
         concreteProtocol.writeMessageBegin(tMessage);

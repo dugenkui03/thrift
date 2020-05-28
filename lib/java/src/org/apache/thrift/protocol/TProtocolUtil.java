@@ -150,6 +150,8 @@ public class TProtocolUtil {
   }
 
   /**
+   * 尝试探测用于序列化数据的协议。
+   *
    * Attempt to determine the protocol used to serialize some data.
    *
    * The guess is based on known specificities of supported protocols.
@@ -158,9 +160,11 @@ public class TProtocolUtil {
    * To be certain to correctly detect the protocol, the first encoded
    * field should have a field id &lt; 256
    *
-   * @param data The serialized data to guess the protocol for.
-   * @param fallback The TProtocol to return if no guess can be made.
-   * @return a Class implementing TProtocolFactory which can be used to create a deserializer.
+   * @param data The serialized data to guess the protocol for. 序列化的数据、猜测其协议。
+   * @param fallback The TProtocol to return if no guess can be made. 如果猜测不到、返回的协议。
+   * @return
+   *      a Class implementing TProtocolFactory which can be used to create a deserializer.
+   *      可用于创建序列化器的协议工厂。
    */
   public static TProtocolFactory guessProtocolFactory(byte[] data, TProtocolFactory fallback) {
     //

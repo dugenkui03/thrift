@@ -26,7 +26,7 @@ import org.apache.thrift.scheme.TupleScheme;
 import org.apache.thrift.transport.TTransport;
 
 /**
- * 元组协议，继承自压缩协议
+ * todo 元组协议，继承自压缩协议
  */
 public final class TTupleProtocol extends TCompactProtocol {
 

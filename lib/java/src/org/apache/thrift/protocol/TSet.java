@@ -24,6 +24,12 @@ package org.apache.thrift.protocol;
  *
  */
 public final class TSet {
+  /**
+   * 元素类型和集合大小
+   */
+  public final byte elemType;
+  public final int  size;
+
   public TSet() {
     this(TType.STOP, 0);
   }
@@ -33,13 +39,8 @@ public final class TSet {
     size = s;
   }
 
+  //可以使用一个list初始化一个TSet
   public TSet(TList list) {
     this(list.elemType, list.size);
   }
-
-  /**
-   * 元素类型和集合大小
-   */
-  public final byte elemType;
-  public final int  size;
 }

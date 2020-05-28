@@ -22,13 +22,18 @@ package org.apache.thrift.protocol;
 import org.apache.thrift.TException;
 
 /**
- * Protocol exceptions.
+ * 协议异常。
  *
+ * Protocol exceptions.
  */
 public class TProtocolException extends TException {
 
-
+  //可序列化
   private static final long serialVersionUID = 1L;
+
+  /**
+   * 异常类型：未知、无效数据、负数大小、错误版本、未实现，深度限制
+   */
   public static final int UNKNOWN = 0;
   public static final int INVALID_DATA = 1;
   public static final int NEGATIVE_SIZE = 2;
@@ -37,6 +42,7 @@ public class TProtocolException extends TException {
   public static final int NOT_IMPLEMENTED = 5;
   public static final int DEPTH_LIMIT = 6;
 
+  //默认未知错误
   protected int type_ = UNKNOWN;
 
   public TProtocolException() {
@@ -75,6 +81,7 @@ public class TProtocolException extends TException {
     type_ = type;
   }
 
+  //获取错误类型
   public int getType() {
     return type_;
   }
