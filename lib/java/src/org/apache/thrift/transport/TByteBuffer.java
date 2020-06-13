@@ -58,6 +58,7 @@ public final class TByteBuffer extends TTransport {
   @Override
   public void write(byte[] buf, int off, int len) throws TTransportException {
     try {
+      //将buf中指定起始位置、长度的数据写入到byteBuffer中
       byteBuffer.put(buf, off, len);
     } catch (BufferOverflowException e) {
       throw new TTransportException("Not enough room in output buffer", e);

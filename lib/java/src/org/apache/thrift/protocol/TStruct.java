@@ -20,7 +20,7 @@
 package org.apache.thrift.protocol;
 
 /**
- * 封装结构元数据的协助类
+ * 封装 结构元数据 的协助类
  *
  * Helper class that encapsulates struct metadata.
  */

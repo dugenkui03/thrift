@@ -120,6 +120,7 @@ public abstract class TTransport implements Closeable {
   }
 
   /**
+   * 从buf中将指定位移、长度的数据写入到 TTransport 中
    * Writes up to len bytes from the buffer.
    *
    * @param buf The output data buffer

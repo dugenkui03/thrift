@@ -41,15 +41,16 @@ import org.apache.thrift.transport.TTransport;
  */
 public class TSimpleJSONProtocol extends TProtocol {
 
-  /**
-   * Factory
-   */
+  //使用底层传输对象创建协议工厂
   public static class Factory implements TProtocolFactory {
     public TProtocol getProtocol(TTransport trans) {
       return new TSimpleJSONProtocol(trans);
     }
   }
 
+  /**
+   * 都好、冒号、大括号、中括号、引号
+   */
   private static final byte[] COMMA = new byte[] {','};
   private static final byte[] COLON = new byte[] {':'};
   private static final byte[] LBRACE = new byte[] {'{'};
@@ -58,9 +59,16 @@ public class TSimpleJSONProtocol extends TProtocol {
   private static final byte[] RBRACKET = new byte[] {']'};
   private static final char QUOTE = '"';
 
+  /**
+   * 生成的struct、service中用到了
+   */
+  //结构类：每个TBase类结构中都有一个TStruct标识
   private static final TStruct ANONYMOUS_STRUCT = new TStruct();
+  //属性：一个字段使用一个TField标识
   private static final TField ANONYMOUS_FIELD = new TField();
+  //一个接口对应一个TMessage:TMessage("sendCodeWithParam", TMessageType.CALL, 0)
   private static final TMessage EMPTY_MESSAGE = new TMessage();
+  //集合
   private static final TSet EMPTY_SET = new TSet();
   private static final TList EMPTY_LIST = new TList();
   private static final TMap EMPTY_MAP = new TMap();
@@ -71,19 +79,23 @@ public class TSimpleJSONProtocol extends TProtocol {
   protected class Context {
     protected void write() throws TException {}
 
-    /**
-     * Returns whether the current value is a key in a map
-     */
+    //返回当前值是否是map中的key
+    //Returns whether the current value is a key in a map
     protected boolean isMapKey() { return  false; }
   }
 
+  //list上下文，继承了通用上下文
   protected class ListContext extends Context {
+    //是否是第一个元素？
     protected boolean first_ = true;
 
     protected void write() throws TException {
+      //开始写的时候先更新是否是 first_ 标识
       if (first_) {
         first_ = false;
       } else {
+        //todo 如果不是、则开始写 逗号","
+        //COMMA 是只有一个逗号的byte数组
         trans_.write(COMMA);
       }
     }
