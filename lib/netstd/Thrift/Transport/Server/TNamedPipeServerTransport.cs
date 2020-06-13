@@ -44,6 +44,10 @@ namespace Thrift.Transport.Server
             _pipeAddress = pipeAddress;
         }
 
+        public override bool IsOpen() {
+            return true;
+        }
+
         public override void Listen()
         {
             // nothing to do here
@@ -256,12 +260,10 @@ namespace Thrift.Transport.Server
 
             public override bool IsOpen => PipeStream != null && PipeStream.IsConnected;
 
-            public override async Task OpenAsync(CancellationToken cancellationToken)
+            public override Task OpenAsync(CancellationToken cancellationToken)
             {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    await Task.FromCanceled(cancellationToken);
-                }
+                cancellationToken.ThrowIfCancellationRequested();
+                return Task.CompletedTask;
             }
 
             public override void Close()
@@ -306,14 +308,12 @@ namespace Thrift.Transport.Server
                 }
             }
 
-            public override async Task FlushAsync(CancellationToken cancellationToken)
+            public override Task FlushAsync(CancellationToken cancellationToken)
             {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    await Task.FromCanceled(cancellationToken);
-                }
+                cancellationToken.ThrowIfCancellationRequested();
 
                 ResetConsumedMessageSize();
+                return Task.CompletedTask;
             }
 
             protected override void Dispose(bool disposing)

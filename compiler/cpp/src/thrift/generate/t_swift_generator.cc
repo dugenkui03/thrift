@@ -50,6 +50,8 @@ public:
                     const map<string, string>& parsed_options,
                     const string& option_string)
     : t_oop_generator(program) {
+    update_keywords();
+	
     (void)option_string;
     map<string, string>::const_iterator iter;
 
@@ -288,6 +290,10 @@ private:
   bool gen_cocoa_;
   bool promise_kit_;
 
+protected:
+  std::set<std::string> lang_keywords() const override {
+	  return {};
+  }
 };
 
 /**
@@ -1210,7 +1216,7 @@ void t_swift_generator::generate_swift_struct_reader(ostream& out,
         if (field_is_optional(*f_iter)) {
           continue;
         }
-        indent(out) << "try proto.validateValue(" << (*f_iter)->get_name() << ", "
+        indent(out) << "try proto.validateValue(" << maybe_escape_identifier((*f_iter)->get_name()) << ", "
                     << "named: \"" << (*f_iter)->get_name() << "\")" << endl;
       }
     }
@@ -2423,7 +2429,8 @@ void t_swift_generator::generate_swift_service_server_implementation(ostream& ou
         if (!tfunction->is_oneway()) {
           out << indent() << "try outProtocol.writeMessageBegin(name: \"" << tfunction->get_name() << "\", type: .reply, sequenceID: sequenceID)" << endl
               << indent() << "try result.write(to: outProtocol)" << endl
-              << indent() << "try outProtocol.writeMessageEnd()" << endl;
+              << indent() << "try outProtocol.writeMessageEnd()" << endl
+              << indent() << "try outProtocol.transport.flush()" << endl;
         }
       } else {
         for (x_iter = xfields.begin(); x_iter != xfields.end(); ++x_iter) {
@@ -2476,7 +2483,8 @@ void t_swift_generator::generate_swift_service_server_implementation(ostream& ou
   if (!gen_cocoa_) {
     out << indent() << "catch let error as TApplicationError";
     block_open(out);
-    out << indent() << "try outProtocol.writeException(messageName: messageName, sequenceID: sequenceID, ex: error)" << endl;
+    out << indent() << "try outProtocol.writeException(messageName: messageName, sequenceID: sequenceID, ex: error)" << endl
+        << indent() << "try outProtocol.transport.flush()" << endl;
     block_close(out);
     block_close(out);
     out << indent() << "else";
@@ -2484,8 +2492,8 @@ void t_swift_generator::generate_swift_service_server_implementation(ostream& ou
     out << indent() << "try inProtocol.skip(type: .struct)" << endl
         << indent() << "try inProtocol.readMessageEnd()" << endl
         << indent() << "let ex = TApplicationError(error: .unknownMethod(methodName: messageName))" << endl
-        << indent() << "try outProtocol.writeException(messageName: messageName, "
-        << "sequenceID: sequenceID, ex: ex)" << endl;
+        << indent() << "try outProtocol.writeException(messageName: messageName, sequenceID: sequenceID, ex: ex)" << endl
+        << indent() << "try outProtocol.transport.flush()" << endl;
   } else {
     out << indent() << "catch let error as NSError";
     block_open(out);

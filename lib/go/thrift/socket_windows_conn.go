@@ -1,3 +1,5 @@
+// +build windows
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -19,34 +21,14 @@
 
 package thrift
 
-import (
-	"context"
-	"log"
-)
-
-func simpleLoggingMiddleware(name string, next TProcessorFunction) TProcessorFunction {
-	return WrappedTProcessorFunction{
-		Wrapped: func(ctx context.Context, seqId int32, in, out TProtocol) (bool, TException) {
-			log.Printf("Before: %q", name)
-			success, err := next.Process(ctx, seqId, in, out)
-			log.Printf("After: %q", name)
-			log.Printf("Success: %v", success)
-			if err != nil {
-				log.Printf("Error: %v", err)
-			}
-			return success, err
-		},
-	}
+func (sc *socketConn) read0() error {
+	// On windows, we fallback to the default behavior of reading 0 bytes.
+	var p []byte
+	_, err := sc.Conn.Read(p)
+	return err
 }
 
-func ExampleProcessorMiddleware() {
-	var (
-		processor    TProcessor
-		trans        TServerTransport
-		transFactory TTransportFactory
-		protoFactory TProtocolFactory
-	)
-	processor = WrapProcessor(processor, simpleLoggingMiddleware)
-	server := NewTSimpleServer4(processor, trans, transFactory, protoFactory)
-	log.Fatal(server.Serve())
+func (sc *socketConn) checkConn() error {
+	// On windows, we always return nil for this check.
+	return nil
 }

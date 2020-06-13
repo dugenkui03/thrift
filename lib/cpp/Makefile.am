@@ -87,6 +87,7 @@ libthrift_la_SOURCES = src/thrift/TApplicationException.cpp \
                        src/thrift/transport/TNonblockingSSLServerSocket.cpp \
                        src/thrift/transport/TTransportUtils.cpp \
                        src/thrift/transport/TBufferTransports.cpp \
+                       src/thrift/transport/TWebSocketServer.cpp \
                        src/thrift/server/TConnectedClient.cpp \
                        src/thrift/server/TServer.cpp \
                        src/thrift/server/TServerFramework.cpp \
@@ -125,7 +126,7 @@ libthriftnb_la_CXXFLAGS = $(AM_CXXFLAGS)
 libthriftz_la_CXXFLAGS  = $(AM_CXXFLAGS)
 libthriftqt5_la_CXXFLAGS  = $(AM_CXXFLAGS)
 libthriftnb_la_LDFLAGS  = -release $(VERSION) $(BOOST_LDFLAGS)
-libthriftz_la_LDFLAGS   = -release $(VERSION) $(BOOST_LDFLAGS) $(ZLIB_LIBS)
+libthriftz_la_LDFLAGS   = -release $(VERSION) $(BOOST_LDFLAGS) $(ZLIB_LDFLAGS) $(ZLIB_LIBS)
 libthriftqt5_la_LDFLAGS   = -release $(VERSION) $(BOOST_LDFLAGS) $(QT5_LIBS)
 
 include_thriftdir = $(includedir)/thrift
@@ -188,6 +189,7 @@ include_transport_HEADERS = \
                          src/thrift/transport/THttpClient.h \
                          src/thrift/transport/THttpServer.h \
                          src/thrift/transport/TSocket.h \
+                         src/thrift/transport/TSocketUtils.h \
                          src/thrift/transport/TPipe.h \
                          src/thrift/transport/TPipeServer.h \
                          src/thrift/transport/TSSLSocket.h \
@@ -198,7 +200,8 @@ include_transport_HEADERS = \
                          src/thrift/transport/TTransportUtils.h \
                          src/thrift/transport/TBufferTransports.h \
                          src/thrift/transport/TShortReadTransport.h \
-                         src/thrift/transport/TZlibTransport.h
+                         src/thrift/transport/TZlibTransport.h \
+                         src/thrift/transport/TWebSocketServer.h
 
 include_serverdir = $(include_thriftdir)/server
 include_server_HEADERS = \
