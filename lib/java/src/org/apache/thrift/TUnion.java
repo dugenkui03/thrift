@@ -34,7 +34,14 @@ import org.apache.thrift.scheme.SchemeFactory;
 import org.apache.thrift.scheme.StandardScheme;
 import org.apache.thrift.scheme.TupleScheme;
 
-public abstract class TUnion<T extends TUnion<T,F>, F extends TFieldIdEnum> implements TBase<T, F> {
+/**
+ * 字段枚举标识、对应的字段枚举值
+ */
+public abstract class TUnion<
+                              T extends TUnion<T,F>,
+                              F extends TFieldIdEnum
+                            >
+        implements TBase<T, F> {
 
   protected Object value_;
   protected F setField_;
@@ -44,17 +51,19 @@ public abstract class TUnion<T extends TUnion<T,F>, F extends TFieldIdEnum> impl
     value_ = null;
   }
 
-  //不同的ISchema.class 对应的工厂类
+  //fixme ISchema.class 对应的工厂类
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
     schemes.put(StandardScheme.class, new TUnionStandardSchemeFactory());
     schemes.put(TupleScheme.class, new TUnionTupleSchemeFactory());
   }
 
+  //将setField标识的字段赋值为value
   protected TUnion(F setField, Object value) {
     setFieldValue(setField, value);
   }
 
+  //使用其他的TUnion作为构造函数
   protected TUnion(TUnion<T, F> other) {
     if (!other.getClass().equals(this.getClass())) {
       throw new ClassCastException();
@@ -62,6 +71,7 @@ public abstract class TUnion<T extends TUnion<T,F>, F extends TFieldIdEnum> impl
     setField_ = other.setField_;
     value_ = deepCopyObject(other.value_);
   }
+
 
   private static Object deepCopyObject(Object o) {
     if (o instanceof TBase) {
@@ -153,28 +163,23 @@ public abstract class TUnion<T extends TUnion<T,F>, F extends TFieldIdEnum> impl
     schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
   }
 
-  /**
-   * Implementation should be generated so that we can efficiently type check
-   * various values.
-   * @param setField
-   * @param value
-   */
+  //Implementation should be generated so that we can efficiently type check various values.
+  //相关代码应该使用编译器生成、检查必写参数
   protected abstract void checkType(F setField, Object value) throws ClassCastException;
 
-  /**
-   * Implementation should be generated to read the right stuff from the wire
-   * based on the field header.
-   * @param field
-   * @return read Object based on the field header, as specified by the argument.
-   */
+
+  //使用指定协议读取指定字段；使用指定协议写入字段值
   protected abstract Object standardSchemeReadValue(TProtocol iprot, TField field) throws TException;
   protected abstract void standardSchemeWriteValue(TProtocol oprot) throws TException;
 
+  //同上，但是tupleScheme
   protected abstract Object tupleSchemeReadValue(TProtocol iprot, short fieldID) throws TException;
   protected abstract void tupleSchemeWriteValue(TProtocol oprot) throws TException;
 
+  //只有一个类名称属性
   protected abstract TStruct getStructDesc();
 
+  //属性名称、类型和序列id
   protected abstract TField getFieldDesc(F setField);
 
   protected abstract F enumForId(short id);

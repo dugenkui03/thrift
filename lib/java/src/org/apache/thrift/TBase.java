@@ -21,47 +21,27 @@ package org.apache.thrift;
 
 import java.io.Serializable;
 
-import org.apache.thrift.protocol.TProtocol;
-
 /**
  * Generic base interface for generated Thrift objects.
- *
  */
 public interface TBase<T extends TBase<T,F>, F extends TFieldIdEnum> extends Comparable<T>,  TSerializable, Serializable {
 
-  /**
-   * Get the F instance that corresponds to fieldId.
-   */
+  //获取id对应的字段枚举
   public F fieldForId(int fieldId);
 
-  /**
-   * Check if a field is currently set or unset.
-   *
-   * @param field
-   */
+  //当前字段是否被赋值
+  //如果是基本类型，会有专门的字段标识、否则判断相应的字段是否为null
   public boolean isSet(F field);
 
-  /**
-   * Get a field's value by field variable. Primitive types will be wrapped in
-   * the appropriate "boxed" types.
-   *
-   * @param field
-   */
+  //获取字段枚举对应的字段值
   public Object getFieldValue(F field);
 
-  /**
-   * Set a field's value by field variable. Primitive types must be "boxed" in
-   * the appropriate object wrapper type.
-   *
-   * @param field
-   */
+  //使用字段枚举定位字段、然后给该字段赋值
   public void setFieldValue(F field, Object value);
 
+  //深度拷贝
   public T deepCopy();
 
-  /**
-   * Return to the state of having just been initialized, as though you had just
-   * called the default constructor.
-   */
+  //清空所有字段的值
   public void clear();
 }

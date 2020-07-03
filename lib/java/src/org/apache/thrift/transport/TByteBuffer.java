@@ -51,10 +51,7 @@ public final class TByteBuffer extends TTransport {
     return n;
   }
 
-  //fixme 读取数据到byteBuffer中
-  //buf 要从中读取字节的数组
-  //off 开始读取buf的偏移量
-  //len 要读取字节的最大长度
+  //fixme 将buf中off开始的、len长度的字节写入到byteBuffer中
   @Override
   public void write(byte[] buf, int off, int len) throws TTransportException {
     try {

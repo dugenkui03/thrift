@@ -30,54 +30,64 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
+ * 异步客户端的传输层
  * Transport for use with async client.
  */
 public class TNonblockingSocket extends TNonblockingTransport {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TNonblockingSocket.class.getName());
-
   /**
+   * 主机和端口，socketChannel_连接的目标主机
    * Host and port if passed in, used for lazy non-blocking connect.
    */
   private final SocketAddress socketAddress_;
 
+  /** http://ifeve.com/socket-channel/
+   * Java NIO中的SocketChannel是一个连接到TCP(三次握手)网络套接字的通道。可以通过以下2种方式创建SocketChannel：
+   *
+   *  1. 打开一个SocketChannel并连接到互联网上的某台服务器；
+   *  2. 一个新连接到达ServerSocketChannel时，会创建一个SocketChannel。
+   */
   private final SocketChannel socketChannel_;
 
+  //目标主机和端口
   public TNonblockingSocket(String host, int port) throws IOException {
     this(host, port, 0);
   }
 
   /**
-   * Create a new nonblocking socket transport that will be connected to host:port.
-   * @param host
-   * @param port
-   * @throws IOException
+   * 使用指定的超时和客户端 主机:port，创建传输层
    */
   public TNonblockingSocket(String host, int port, int timeout) throws IOException {
+    //open()：打开并返回一个新的通道；打开超时时间；网络套接字地址
     this(SocketChannel.open(), timeout, new InetSocketAddress(host, port));
   }
 
-  /**
-   * Constructor that takes an already created socket.
-   *
-   * @param socketChannel Already created SocketChannel object
-   * @throws IOException if there is an error setting up the streams
-   */
+  //使用一个已经存在的套接字、创建传输层。
   public TNonblockingSocket(SocketChannel socketChannel) throws IOException {
     this(socketChannel, 0, null);
-    if (!socketChannel.isConnected()) throw new IOException("Socket must already be connected");
+    //如果创建失败
+    if (!socketChannel.isConnected()) {
+      throw new IOException("Socket must already be connected");
+    }
   }
 
+  /**
+   *
+   * @param socketChannel 套接字通道
+   * @param timeout
+   * @param socketAddress
+   * @throws IOException
+   */
   private TNonblockingSocket(SocketChannel socketChannel, int timeout, SocketAddress socketAddress)
       throws IOException {
+    //对象成员变量指向构造函数参数
     socketChannel_ = socketChannel;
     socketAddress_ = socketAddress;
 
     // make it a nonblocking channel
+    // 使用非阻塞套接字通道，异步模式下调用connect(), read() 和write()
+    // 例如，此时调用connect()、该方法可能在连接建立之前就返回了
     socketChannel.configureBlocking(false);
 
     // set options
@@ -89,19 +99,24 @@ public class TNonblockingSocket extends TNonblockingTransport {
   }
 
   /**
-   * Register the new SocketChannel with our Selector, indicating
-   * we'd like to be notified when it's ready for I/O.
+   * 使用指定的Selector注册一个新socket通道，表示准备好IO了
+   * Register the new SocketChannel with our Selector,
+   * indicating we'd like to be notified when it's ready for I/O.
    *
-   * @param selector
-   * @return the selection key for this socket.
+   * @param selector http://ifeve.com/selectors/
+   *                 Selector（选择器）是Java NIO中能够检测一到多个NIO通道，并能够知晓通道是否为诸如读写事件做好准备的组件。
+   *                 这样，一个单独的线程可以管理多个channel，从而管理多个网络连接。
+   *
+   * @return the selection key for this socket. 套接字的key
    */
   public SelectionKey registerSelector(Selector selector, int interests) throws IOException {
     return socketChannel_.register(selector, interests);
   }
 
   /**
-   * Sets the socket timeout, although this implementation never uses blocking operations so it is unused.
+   * 从套接字读写超时：fixme 平时所说的超时、都是套接字读写超时(连接或者读写)
    *
+   * Sets the socket timeout, although this implementation never uses blocking operations so it is unused.
    * @param timeout Milliseconds timeout
    */
   public void setTimeout(int timeout) {
@@ -134,9 +149,10 @@ public class TNonblockingSocket extends TNonblockingTransport {
     throw new RuntimeException("open() is not implemented for TNonblockingSocket");
   }
 
-  /**
-   * Perform a nonblocking read into buffer.
-   */
+  //fixme
+  //    从目标主机读取数据到这个buffer中
+  //    buf[] <- data - webServer
+  //    返回值代表读取的值的字节数，如果返回-1则代表读取了流的末尾或者socket关闭了连接
   public int read(ByteBuffer buffer) throws IOException {
     return socketChannel_.read(buffer);
   }
@@ -157,17 +173,15 @@ public class TNonblockingSocket extends TNonblockingTransport {
     }
   }
 
-  /**
-   * Perform a nonblocking write of the data in buffer;
-   */
+  //Perform a nonblocking write of the data in buffer;
+  //将缓存区中的数据写入到channel、发送给远端的主机
   public int write(ByteBuffer buffer) throws IOException {
     return socketChannel_.write(buffer);
   }
 
-  /**
-   * Writes to the underlying output stream if not null.
-   */
+  //将buf中、off开始的长度为len的数据，写入到对象 socket channel 中
   public void write(byte[] buf, int off, int len) throws TTransportException {
+    //判断是否允许想socket写数据，不允许的话返回异常
     if ((socketChannel_.validOps() & SelectionKey.OP_WRITE) != SelectionKey.OP_WRITE) {
       throw new TTransportException(TTransportException.NOT_OPEN,
         "Cannot write to write-only socket channel");
@@ -197,7 +211,7 @@ public class TNonblockingSocket extends TNonblockingTransport {
     }
   }
 
-  /** {@inheritDoc} */
+  //创建一个套接字通道、并返回是否创建成功
   public boolean startConnect() throws IOException {
     return socketChannel_.connect(socketAddress_);
   }

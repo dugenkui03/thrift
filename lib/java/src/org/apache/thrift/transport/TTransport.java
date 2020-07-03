@@ -33,7 +33,8 @@ import java.io.Closeable;
 public abstract class TTransport implements Closeable {
 
   /**
-   * 确定传输层是否打开？
+   * 确认传输层是否打开
+   *
    * Queries whether the transport is open.
    *
    * @return True if the transport is open.

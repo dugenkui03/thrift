@@ -25,9 +25,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
+/**
+ * 非阻塞传输层，实现类：TNonblockingSocket
+ */
 public abstract class TNonblockingTransport extends TTransport {
 
   /**
+   * 初始化 非阻塞传输层
    * Non-blocking connection initialization.
    * @see java.nio.channels.SocketChannel#connect(SocketAddress remote)
    */

@@ -25,6 +25,8 @@ import java.nio.ByteBuffer;
 import org.apache.thrift.transport.TNonblockingTransport;
 
 /**
+ * 写入帧（头部和净负荷）、以非阻塞的方式传输。
+ *
  * Write frame (header and payload) to transport in a nonblocking way.
  */
 public abstract class FrameWriter {
@@ -32,6 +34,8 @@ public abstract class FrameWriter {
   protected ByteBuffer frameBytes;
 
   /**
+   * fixme 带有头部和净负荷
+   *
    * Provide (maybe empty) header and payload to the frame. This can be called only when isComplete
    * returns true (last frame has been written out).
    *
@@ -74,8 +78,10 @@ public abstract class FrameWriter {
   }
 
   /**
-   * Provide only payload to the frame. Throws UnsupportedOperationException if the frame expects
-   * a header.
+   * fixme 只有净负荷
+   * Provide only payload（净负荷） to the frame.
+   *
+   * Throws UnsupportedOperationException if the frame expects a header.
    *
    * @param payload payload as a byte array
    */
@@ -84,8 +90,9 @@ public abstract class FrameWriter {
   }
 
   /**
-   * Provide only payload to the frame. Throws UnsupportedOperationException if the frame expects
-   * a header.
+   * fixme 只有净负荷
+   * Provide only payload to the frame.
+   * Throws UnsupportedOperationException if the frame expects a header.
    *
    * @param payload The underlying byte array as a recipient of the payload
    * @param offset The offset in the byte array starting from where the payload is located

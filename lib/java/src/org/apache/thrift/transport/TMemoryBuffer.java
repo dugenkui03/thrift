@@ -23,13 +23,13 @@ import org.apache.thrift.TByteArrayOutputStream;
 import java.nio.charset.Charset;
 
 /**
- * 基于内存缓冲实现的TTransport接口
+ * fixme 内存传输层？
  *
  * Memory buffer-based implementation of the TTransport interface.
  */
 public class TMemoryBuffer extends TTransport {
 
-  // The contents of the buffer 缓存内容
+  //  buffer中的内容
   private TByteArrayOutputStream arr_;
 
   // Position to read next byte from 开始读取数据的位置
@@ -73,10 +73,16 @@ public class TMemoryBuffer extends TTransport {
     /* Do nothing */
   }
 
+  //fixme 从流中读取 len 长度的数据到流中
   @Override
   public int read(byte[] buf, int off, int len) {
+    //arr_的类型TByteArrayOutputStream继承了ByteArrayOutputStream，
+    // 该类可通过get()方法直接获取存放数据的数组
     byte[] src = arr_.get();
+
     //可读取的元素数量、也是实际要读取的元素数量
+    //arr_.len()-pos_是所有可读取的数据数量；
+    //len是想要读取的元素数量
     int amtToRead = (len > arr_.len() - pos_ ? arr_.len() - pos_ : len);
 
     //拷贝缓存区数据到目标数组
@@ -88,6 +94,7 @@ public class TMemoryBuffer extends TTransport {
     return amtToRead;
   }
 
+  //fixme 将buf指定起始位置和长度的数据写入到流中
   @Override
   public void write(byte[] buf, int off, int len) {
     arr_.write(buf, off, len);

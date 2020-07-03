@@ -21,6 +21,11 @@ package org.apache.thrift.transport;
 import java.util.Arrays;
 
 /**
+ * fixme
+ *    包装了byte[] 对象，以此方便的扩充和重用此对象；
+ *    resizeIfNecessary可以根据实际情况对容量进行扩充；
+ *
+ *
  * Helper class that wraps a byte[] so that it can expand and be reused. Users
  * should call resizeIfNecessary to make sure the buffer has suitable capacity,
  * and then use the array as needed. Note that the internal array will grow at a

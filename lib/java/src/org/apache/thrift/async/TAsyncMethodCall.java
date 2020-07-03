@@ -33,7 +33,11 @@ import org.apache.thrift.transport.TNonblockingTransport;
 import org.apache.thrift.transport.TTransportException;
 
 /**
- * Encapsulates an async method call.
+ * fixme
+ *    成员变量是方法的参数；
+ *    write_args()
+ *
+ * Encapsulates(压缩) an async method call.
  * <p>
  * Need to generate:
  * <ul>
@@ -45,10 +49,13 @@ import org.apache.thrift.transport.TTransportException;
  */
 public abstract class TAsyncMethodCall<T> {
 
-  //初始化内存大小
+  //初始化内存大小，静态的、对所有的对象都适用
   private static final int INITIAL_MEMORY_BUFFER_SIZE = 128;
+
+  //fixme 序列ID，idl中定义的每个service方法都对应一个序列id、在初始化该方法类的构造函数中被调用
   private static AtomicLong sequenceIdCounter = new AtomicLong(0);
 
+  //状态
   public static enum State {
     CONNECTING,//连接的
     WRITING_REQUEST_SIZE,//写请求大小
@@ -59,19 +66,20 @@ public abstract class TAsyncMethodCall<T> {
     ERROR;//错误
   }
 
-  /**
-   * Next step in the call, initialized by start()
-   */
+  // Next step in the call, initialized by start()
+  // 这个调用下一步进行的操作、在start()中初始化
   private State state = null;
 
   protected final TNonblockingTransport transport;
   private final TProtocolFactory protocolFactory;
   protected final TAsyncClient client;
+  //异步方法会回调
   private final AsyncMethodCallback<T> callback;
   private final boolean isOneway;
   private long sequenceId;
   private final long timeout;
 
+  //保存帧数据
   private ByteBuffer sizeBuffer;
   private final byte[] sizeBufferArray = new byte[4];
   private ByteBuffer frameBuffer;
@@ -116,22 +124,33 @@ public abstract class TAsyncMethodCall<T> {
     return timeout + startTime;
   }
 
+  //将方法参数写想远端服务
   protected abstract void write_args(TProtocol protocol) throws TException;
 
   protected abstract T getResult() throws Exception;
 
   /**
-   * Initialize buffers.
+   * 方法调用前置方法
    * @throws TException if buffer initialization fails
    */
   protected void prepareMethodCall() throws TException {
+
+    //创建 对一个流的读写缓存
     TMemoryBuffer memoryBuffer = new TMemoryBuffer(INITIAL_MEMORY_BUFFER_SIZE);
+
+    //使用内存传输类型(TMemoryBuffer extends TTransport)、创建一个协议工厂
     TProtocol protocol = protocolFactory.getProtocol(memoryBuffer);
+
+    //将方法参数写想远端服务
     write_args(protocol);
 
+    //todo?
     int length = memoryBuffer.length();
+
+    //将memoryBuffer中的数据包装成ByteBuffer类
     frameBuffer = ByteBuffer.wrap(memoryBuffer.getArray(), 0, length);
 
+    //sizeBufferArray byte[4]数组
     TFramedTransport.encodeFrameSize(length, sizeBufferArray);
     sizeBuffer = ByteBuffer.wrap(sizeBufferArray);
   }
@@ -139,11 +158,20 @@ public abstract class TAsyncMethodCall<T> {
   /**
    * Register with selector and start first state, which could be either connecting or writing.
    * @throws IOException if register or starting fails
+   *
+   * Selector（选择器）是Java NIO中能够检测一到多个NIO通道，
+   * 并能够知晓通道是否为诸如读写事件做好准备的组件。
+   * 这样，一个单独的线程可以管理多个channel，从而管理多个网络连接。
    */
   void start(Selector sel) throws IOException {
     SelectionKey key;
+
+    //如果传输层打开了
     if (transport.isOpen()) {
+      //写请求任务大小？
       state = State.WRITING_REQUEST_SIZE;
+      //Registers this channel with the given selector, returning a selection key.
+      //使用指定的selector和key注册transport，并返回key
       key = transport.registerSelector(sel, SelectionKey.OP_WRITE);
     } else {
       state = State.CONNECTING;
@@ -151,7 +179,10 @@ public abstract class TAsyncMethodCall<T> {
 
       // non-blocking connect can complete immediately,
       // in which case we should not expect the OP_CONNECT
+      //非阻塞连接可以立即完成，这种情况下我们不能够期望 OP_CONNECT
+      //startConnect操作含义：例如、连接一个socket通道、并返回是否成功
       if (transport.startConnect()) {
+
         registerForFirstWrite(key);
       }
     }
@@ -159,8 +190,11 @@ public abstract class TAsyncMethodCall<T> {
     key.attach(this);
   }
 
+  //为第一次写、进行注册
   void registerForFirstWrite(SelectionKey key) throws IOException {
+    //获取写请求大小
     state = State.WRITING_REQUEST_SIZE;
+    //将SelectionKey设置为给定的值
     key.interestOps(SelectionKey.OP_WRITE);
   }
 
@@ -248,7 +282,9 @@ public abstract class TAsyncMethodCall<T> {
     }
     if (sizeBuffer.remaining() == 0) {
       state = State.READING_RESPONSE_BODY;
-      frameBuffer = ByteBuffer.allocate(TFramedTransport.decodeFrameSize(sizeBufferArray));
+      //获取帧大小、并分配响应的内存块
+      int frameSize = TFramedTransport.decodeFrameSize(sizeBufferArray);
+      frameBuffer = ByteBuffer.allocate(frameSize);
     }
   }
 

@@ -23,8 +23,8 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 
 /**
+ * fixme 字节数据输出流
  * 该类可在不进行 deepCopy 的情况下、访问其数据。
- *
  * Class that allows access to the underlying buf without doing deep copies on it.
  */
 public class TByteArrayOutputStream extends ByteArrayOutputStream {

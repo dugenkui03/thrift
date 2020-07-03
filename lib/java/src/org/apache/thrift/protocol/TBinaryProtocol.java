@@ -50,6 +50,7 @@ public class TBinaryProtocol extends TProtocol {
    */
   private final long containerLengthLimit_;
 
+  //是否要进行严格的读写
   protected boolean strictRead_;
   protected boolean strictWrite_;
 
@@ -119,14 +120,21 @@ public class TBinaryProtocol extends TProtocol {
     strictWrite_ = strictWrite;
   }
 
+  //写数据开始的时候调用，将方法名称、类型和序列id等写入到目标buf/流中
   @Override
   public void writeMessageBegin(TMessage message) throws TException {
+    //严格的写
     if (strictWrite_) {
+      //message.type参见 TMessageType：调用、响应、异常、ONEWAY等等
       int version = VERSION_1 | message.type;
+      //将32bit、4字节的数据写入到 流/缓存区/socket 中
       writeI32(version);
+      //将方法名称写入到 buf 中
       writeString(message.name);
+      //将方法的序列ID写入到buf 中
       writeI32(message.seqid);
     } else {
+      //方法名称、类型和seqId写入到流中
       writeString(message.name);
       writeByte(message.type);
       writeI32(message.seqid);
@@ -184,17 +192,20 @@ public class TBinaryProtocol extends TProtocol {
   @Override
   public void writeSetEnd() throws TException {}
 
+  //boolean类型数据通过byte写入
   @Override
   public void writeBool(boolean b) throws TException {
     writeByte(b ? (byte)1 : (byte)0);
   }
 
+  //写一个byte、1字节的数据到 流/缓存区/socket 中
   @Override
   public void writeByte(byte b) throws TException {
     inoutTemp[0] = b;
     trans_.write(inoutTemp, 0, 1);
   }
 
+  //写一个short类型数据、2字节到 流/缓存区/socket 中
   @Override
   public void writeI16(short i16) throws TException {
     inoutTemp[0] = (byte)(0xff & (i16 >> 8));
@@ -202,6 +213,7 @@ public class TBinaryProtocol extends TProtocol {
     trans_.write(inoutTemp, 0, 2);
   }
 
+  //写32bit数据、即4字节的int类型数据到 流/缓存区/socket 中
   @Override
   public void writeI32(int i32) throws TException {
     inoutTemp[0] = (byte)(0xff & (i32 >> 24));
@@ -211,6 +223,7 @@ public class TBinaryProtocol extends TProtocol {
     trans_.write(inoutTemp, 0, 4);
   }
 
+  //写64bit数据、即8字节的long类型数据到 流/缓存区/socket 中
   @Override
   public void writeI64(long i64) throws TException {
     inoutTemp[0] = (byte)(0xff & (i64 >> 56));

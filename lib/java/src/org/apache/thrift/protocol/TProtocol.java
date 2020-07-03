@@ -96,6 +96,7 @@ public abstract class TProtocol {
   public abstract void writeBool(boolean b) throws TException;
   public abstract void writeByte(byte b) throws TException;
   public abstract void writeI16(short i16) throws TException;
+  //写32位的数据到二进制流
   public abstract void writeI32(int i32) throws TException;
   public abstract void writeI64(long i64) throws TException;
   public abstract void writeDouble(double dub) throws TException;

@@ -124,10 +124,15 @@ public class TIOStreamTransport extends TTransport {
     }
   }
 
+
   /**
    * 从输入流中读取数据到buf：从buf的off位置开始写数据。
    *
-   * Reads from the underlying input stream if not null.
+   * @param buf Array to read into 存放数据的数据
+   * @param off Index to start reading at 开始存放数据的偏移量
+   * @param len Maximum number of bytes to read 读取数据的最大值-没有这么多、就不读取这么多
+   * @return
+   * @throws TTransportException
    */
   public int read(byte[] buf, int off, int len) throws TTransportException {
     //输入流未创建、抛异常
@@ -142,7 +147,9 @@ public class TIOStreamTransport extends TTransport {
     } catch (IOException iox) {
       throw new TTransportException(TTransportException.UNKNOWN, iox);
     }
+
     // or -1 if there is no more data because the end of the stream has been reached.
+    // -1 表示流中没有数据了
     if (bytesRead < 0) {
       throw new TTransportException(TTransportException.END_OF_FILE, "Socket is closed by peer.");
     }

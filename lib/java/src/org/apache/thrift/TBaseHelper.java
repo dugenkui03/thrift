@@ -38,9 +38,12 @@ public final class TBaseHelper {
   private static final Comparator comparator = new NestedStructureComparator();
 
   public static int compareTo(Object o1, Object o2) {
+    //如果是可比较的
     if (o1 instanceof Comparable) {
       return compareTo((Comparable)o1, (Comparable)o2);
-    } else if (o1 instanceof List) {
+    }
+    //如果o1是list
+    else if (o1 instanceof List) {
       return compareTo((List)o1, (List)o2);
     } else if (o1 instanceof Set) {
       return compareTo((Set)o1, (Set)o2);
@@ -98,6 +101,9 @@ public final class TBaseHelper {
     return a.compareTo(b);
   }
 
+  /**
+   * 比较list大小；从索引0开始比较元素
+   */
   public static int compareTo(List a, List b) {
     int compare = compareTo(a.size(), b.size());
     if (compare == 0) {
@@ -269,10 +275,13 @@ public final class TBaseHelper {
     return ByteBuffer.wrap(byteBufferToByteArray(in));
   }
 
+  //深度拷贝二进制值
   public static ByteBuffer copyBinary(final ByteBuffer orig) {
     if (orig == null) {
       return null;
     }
+
+    //remaining() 返回当前索引和limit的位置
     ByteBuffer copy = ByteBuffer.wrap(new byte[orig.remaining()]);
     if (orig.hasArray()) {
       System.arraycopy(orig.array(), orig.arrayOffset() + orig.position(), copy.array(), 0, orig.remaining());

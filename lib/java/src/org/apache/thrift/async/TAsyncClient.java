@@ -21,7 +21,13 @@ package org.apache.thrift.async;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TNonblockingTransport;
 
+/**
+ * 异步客户端：service的异步包装类继承了此抽象类
+ */
 public abstract class TAsyncClient {
+  /**
+   * 协议、传输、异步客户端管理、异步方法调用(压缩异步方法调用)、异常、超时
+   */
   protected final TProtocolFactory ___protocolFactory;
   protected final TNonblockingTransport ___transport;
   protected final TAsyncClientManager ___manager;
@@ -29,6 +35,7 @@ public abstract class TAsyncClient {
   private Exception ___error;
   private long ___timeout;
 
+  //使用执行协议、客户端管理器和"异步方法调用"构造对象
   public TAsyncClient(TProtocolFactory protocolFactory, TAsyncClientManager manager, TNonblockingTransport transport) {
     this(protocolFactory, manager, transport, 0);
   }
@@ -72,6 +79,7 @@ public abstract class TAsyncClient {
     return ___error;
   }
 
+  //异步客户端检查 TAsyncMethodCall存在则异常
   protected void checkReady() {
     // Ensure we are not currently executing a method
     if (___currentMethod != null) {
@@ -79,6 +87,7 @@ public abstract class TAsyncClient {
     }
 
     // Ensure we're not in an error state
+    // 客户端创建没问题
     if (___error != null) {
       throw new IllegalStateException("Client has an error!", ___error);
     }

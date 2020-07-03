@@ -42,6 +42,8 @@ public class TAsyncClientManager {
 
   //构造函数中初始化
   private final SelectThread selectThread;
+
+  //并发队列：读写同步，保存异步调用任务。
   private final ConcurrentLinkedQueue<TAsyncMethodCall> pendingCalls = new ConcurrentLinkedQueue<TAsyncMethodCall>();
 
   public TAsyncClientManager() throws IOException {
@@ -49,12 +51,20 @@ public class TAsyncClientManager {
     selectThread.start();
   }
 
+  //异步调用
   public void call(TAsyncMethodCall method) throws TException {
+    //如果该方法对应
     if (!isRunning()) {
       throw new TException("SelectThread is not running");
     }
+
+    //方法前置操作
     method.prepareMethodCall();
+    /**
+     * 将对此方法的调用、包括参数，添加到任务队列
+     */
     pendingCalls.add(method);
+
     selectThread.getSelector().wakeup();
   }
 
@@ -67,10 +77,14 @@ public class TAsyncClientManager {
   }
 
   /**
-   * 异步任务
+   *  异步调用使用的线程
    */
   private class SelectThread extends Thread {
-    private final Selector selector;//todo
+    /**
+     * Selector（选择器）是Java NIO中能够检测一到多个NIO通道，并能够知晓通道是否为诸如读写事件做好准备的组件。
+     *        这样，一个单独的线程可以管理多个channel，从而管理多个网络连接。
+     */
+    private final Selector selector;
     //是否在运行
     private volatile boolean running;
     private final TreeSet<TAsyncMethodCall> timeoutWatchSet = new TreeSet<TAsyncMethodCall>(new TAsyncMethodCallTimeoutComparator());
@@ -175,6 +189,7 @@ public class TAsyncClientManager {
     // Start any new calls
     private void startPendingMethods() {
       TAsyncMethodCall methodCall;
+      //获取头部元素
       while ((methodCall = pendingCalls.poll()) != null) {
         // Catch registration errors. method will catch transition errors and cleanup.
         try {

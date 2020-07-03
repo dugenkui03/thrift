@@ -21,9 +21,9 @@ package org.apache.thrift;
 
 /**
  * Requirement type constants.
- *
  */
 public final class TFieldRequirementType {
+  //必须、可选、内部使用的默认
   public static final byte REQUIRED  = 1;
   public static final byte OPTIONAL = 2;
   public static final byte DEFAULT = 3;

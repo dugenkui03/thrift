@@ -19,6 +19,7 @@
 package org.apache.thrift.transport;
 
 /**
+ * 传输层、自动扩充缓存
  * TTransport for writing to an AutoExpandingBuffer.
  */
 public final class AutoExpandingBufferWriteTransport extends TTransport {

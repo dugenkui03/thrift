@@ -173,6 +173,11 @@ public class TFramedTransport extends TTransport {
     transport_.flush();
   }
 
+  /**
+   * 将帧大小信息frameSize(整型值)存放到存放到byte数组中
+   *
+   * 一个整型、4个字节，正好。高位存放在索引序号低的地方。
+   */
   public static final void encodeFrameSize(final int frameSize, final byte[] buf) {
     buf[0] = (byte)(0xff & (frameSize >> 24));
     buf[1] = (byte)(0xff & (frameSize >> 16));
@@ -180,6 +185,7 @@ public class TFramedTransport extends TTransport {
     buf[3] = (byte)(0xff & (frameSize));
   }
 
+  //同encodeFrameSize，将byte数组中存放的、帧大小数据解析为int值
   public static final int decodeFrameSize(final byte[] buf) {
     return
       ((buf[0] & 0xff) << 24) |
