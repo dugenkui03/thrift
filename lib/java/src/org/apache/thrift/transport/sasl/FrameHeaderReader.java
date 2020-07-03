@@ -23,19 +23,24 @@ import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
 /**
+ * 帧头部定义。
+ * <p></p>
+ * 数组帧头部，对于每一帧、头部包含数据大小和其他元数据。
  * Read headers for a frame. For each frame, the header contains payload size and other metadata.
  */
 public interface FrameHeaderReader {
 
   /**
+   * 作为 thrift简单验证安全层 规范所诉，所有的安全数据(谈判和发送数据)应该有header来表明 净负荷。
    * As the thrift sasl specification states, all sasl messages (both for negotiatiing and for
    * sending data) should have a header to indicate the size of the payload.
    *
-   * @return size of the payload.
+   * @return size of the payload. 数据帧净负荷的大小-存数据。
    */
   int payloadSize();
 
   /**
+   * 为头部接收的数据。
    *
    * @return The received bytes for the header.
    * @throws IllegalStateException if isComplete returns false.
@@ -43,11 +48,14 @@ public interface FrameHeaderReader {
   byte[] toBytes();
 
   /**
+   * 如果header中所有的字段都已经设置、则为true.
+   *
    * @return true if this header has all its fields set.
    */
   boolean isComplete();
 
   /**
+   * 清除header、并且使其能够读取新的头部。
    * Clear the header and make it available to read a new header.
    */
   void clear();

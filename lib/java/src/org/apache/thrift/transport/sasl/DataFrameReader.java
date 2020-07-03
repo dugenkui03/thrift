@@ -20,10 +20,12 @@
 package org.apache.thrift.transport.sasl;
 
 /**
+ * thrift序列化消息后的数据帧
  * Frames for thrift (serialized) messages.
  */
 public class DataFrameReader extends FrameReader<DataFrameHeaderReader> {
 
+  //数据帧reader
   public DataFrameReader() {
     super(new DataFrameHeaderReader());
   }

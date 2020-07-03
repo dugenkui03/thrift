@@ -26,17 +26,21 @@ import org.apache.thrift.utils.StringUtils;
 import java.nio.ByteBuffer;
 
 /**
- * Headers' size should be predefined.
+ * 数组帧header大小应该预定义。
+ * Headers' size should be predefined(预定义).
  */
 public abstract class FixedSizeHeaderReader implements FrameHeaderReader {
 
   protected final ByteBuffer byteBuffer = ByteBuffer.allocate(headerSize());
 
+  //测试当前数据是否读完
   @Override
   public boolean isComplete() {
+    //通过测试当前位置是否小于limit，小于则还未完成，position < limit
     return !byteBuffer.hasRemaining();
   }
 
+  //清空头部数据
   @Override
   public void clear() {
     byteBuffer.clear();

@@ -19,7 +19,9 @@
 
 package org.apache.thrift.transport.sasl;
 
-/**
+/** sasl(simple authentication security layer)：简单身份验证和安全层
+ *
+ * 数据帧的头部，4字节大小。
  * The header for data frame, it only contains a 4-byte payload size.
  */
 public class DataFrameHeaderReader extends FixedSizeHeaderReader {
