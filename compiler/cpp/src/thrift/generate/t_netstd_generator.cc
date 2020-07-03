@@ -128,7 +128,7 @@ static string check_and_correct_struct_name(const string& struct_name)
     return struct_name;
 }
 
-static bool field_has_default(t_field* tfield) { return tfield->get_value() != NULL; }
+static bool field_has_default(t_field* tfield) { return tfield->get_value() != nullptr; }
 
 static bool field_is_required(t_field* tfield) { return tfield->get_req() == t_field::T_REQUIRED; }
 
@@ -502,7 +502,7 @@ void t_netstd_generator::print_const_def_value(ostream& out, string name, t_type
 
         for (v_iter = val.begin(); v_iter != val.end(); ++v_iter)
         {
-            t_field* field = NULL;
+            t_field* field = nullptr;
 
             for (f_iter = fields.begin(); f_iter != fields.end(); ++f_iter)
             {
@@ -512,7 +512,7 @@ void t_netstd_generator::print_const_def_value(ostream& out, string name, t_type
                 }
             }
 
-            if (field == NULL)
+            if (field == nullptr)
             {
                 throw "type error: " + type->get_name() + " has no field " + v_iter->first->get_string();
             }
@@ -1031,7 +1031,7 @@ void t_netstd_generator::generate_netstd_struct_definition(ostream& out, t_struc
         t_type* t = (*m_iter)->get_type();
         t = resolve_typedef(t);
 
-        if ((*m_iter)->get_value() != NULL)
+        if ((*m_iter)->get_value() != nullptr)
         {
             if (field_is_required((*m_iter)))
             {
@@ -1173,17 +1173,8 @@ void t_netstd_generator::generate_netstd_deepcopy_method(ostream& out, t_struct*
         t_type* ttype = (*m_iter)->get_type();
         string copy_op = get_deep_copy_method_call(ttype, needs_typecast);
         
-        bool have_indent = false;
-        if (!field_is_required(*m_iter)) {
-            out << indent() << "if( this.__isset." << normalize_name((*m_iter)->get_name()) << ")" << endl;
-            indent_up();
-            have_indent = true;
-        } 
-        else if( type_can_be_null(ttype)) {
-            out << indent() << "if( this." << prop_name(*m_iter) << " != null)" << endl;
-            indent_up();
-            have_indent = true;
-        } 
+        bool is_required = field_is_required(*m_iter);
+        generate_null_check_begin( out, *m_iter);
 
         out << indent() << tmp_instance << "." << prop_name(*m_iter) << " = ";
         if( needs_typecast) {
@@ -1191,8 +1182,10 @@ void t_netstd_generator::generate_netstd_deepcopy_method(ostream& out, t_struct*
         }
         out << "this." << prop_name(*m_iter) << copy_op << ";" << endl;
 
-        if (have_indent) {
-            indent_down();
+        generate_null_check_end( out, *m_iter);
+        if( !is_required) {
+            out << indent() << tmp_instance << ".__isset." << normalize_name((*m_iter)->get_name())
+                 << " = this.__isset." << normalize_name((*m_iter)->get_name()) << ";" << endl;
         }
     }
 
@@ -1306,6 +1299,44 @@ void t_netstd_generator::generate_netstd_struct_reader(ostream& out, t_struct* t
     out << indent() << "}" << endl << endl;
 }
 
+
+void t_netstd_generator::generate_null_check_begin(ostream& out, t_field* tfield) {
+    bool is_required = field_is_required(tfield);
+    bool null_allowed = type_can_be_null(tfield->get_type());
+    
+    if( null_allowed || (!is_required)) {
+        bool first = true;
+        out << indent() << "if(";
+        
+        if( null_allowed) {
+            out << "(" << prop_name(tfield) << " != null)";
+            first = false;
+        }
+    
+        if( !is_required) {
+            if( !first) {
+                out << " && ";
+            }
+            out << "__isset." << normalize_name(tfield->get_name());
+        }
+        
+        out << ")" << endl
+            << indent() << "{" << endl;
+        indent_up();
+    }        
+}
+
+
+void t_netstd_generator::generate_null_check_end(ostream& out, t_field* tfield) {
+    bool is_required = field_is_required(tfield);
+    bool null_allowed = type_can_be_null(tfield->get_type());
+    
+    if( null_allowed || (!is_required)) {
+        indent_down();
+        out << indent() << "}" << endl;
+    }
+}
+
 void t_netstd_generator::generate_netstd_struct_writer(ostream& out, t_struct* tstruct)
 {
     out << indent() << "public async Task WriteAsync(TProtocol oprot, CancellationToken cancellationToken)" << endl
@@ -1329,23 +1360,7 @@ void t_netstd_generator::generate_netstd_struct_writer(ostream& out, t_struct* t
         out << indent() << "var field = new TField();" << endl;
         for (f_iter = fields.begin(); f_iter != fields.end(); ++f_iter)
         {
-            bool is_required = field_is_required(*f_iter);
-            if (!is_required)
-            {
-                bool null_allowed = type_can_be_null((*f_iter)->get_type());
-                if (null_allowed)
-                {
-                    out << indent() << "if (" << prop_name(*f_iter) << " != null && __isset." << normalize_name((*f_iter)->get_name()) << ")" << endl
-                        << indent() << "{" << endl;
-                    indent_up();
-                }
-                else
-                {
-                    out << indent() << "if (__isset." << normalize_name((*f_iter)->get_name()) << ")" << endl
-                        << indent() << "{" << endl;
-                    indent_up();
-                }
-            }
+            generate_null_check_begin( out, *f_iter);
             out << indent() << "field.Name = \"" << (*f_iter)->get_name() << "\";" << endl
                 << indent() << "field.Type = " << type_to_enum((*f_iter)->get_type()) << ";" << endl
                 << indent() << "field.ID = " << (*f_iter)->get_key() << ";" << endl
@@ -1354,11 +1369,7 @@ void t_netstd_generator::generate_netstd_struct_writer(ostream& out, t_struct* t
             generate_serialize_field(out, *f_iter);
 
             out << indent() << "await oprot.WriteFieldEndAsync(cancellationToken);" << endl;
-            if (!is_required)
-            {
-                indent_down();
-                out << indent() << "}" << endl;
-            }
+            generate_null_check_end(out, *f_iter);
         }
     }
 
@@ -1482,23 +1493,8 @@ void t_netstd_generator::generate_netstd_struct_tostring(ostream& out, t_struct*
 
     for (f_iter = fields.begin(); f_iter != fields.end(); ++f_iter)
     {
-        bool is_required = field_is_required((*f_iter));
-        if (!is_required)
-        {
-            bool null_allowed = type_can_be_null((*f_iter)->get_type());
-            if (null_allowed)
-            {
-                out << indent() << "if (" << prop_name((*f_iter)) << " != null && __isset." << normalize_name((*f_iter)->get_name()) << ")" << endl
-                    << indent() << "{" << endl;
-                indent_up();
-            }
-            else
-            {
-                out << indent() << "if (__isset." << normalize_name((*f_iter)->get_name()) << ")" << endl
-                    << indent() << "{" << endl;
-                indent_up();
-            }
-        }
+        bool is_required = field_is_required(*f_iter);
+        generate_null_check_begin(out, *f_iter);
 
         if (useFirstFlag && (!had_required))
         {
@@ -1512,13 +1508,8 @@ void t_netstd_generator::generate_netstd_struct_tostring(ostream& out, t_struct*
 
         out << indent() << prop_name(*f_iter) << ".ToString(sb);" << endl;
 
-        if (!is_required)
-        {
-            indent_down();
-            out << indent() << "}" << endl;
-        }
-        else
-        {
+        generate_null_check_end(out, *f_iter);
+        if (is_required) {
             had_required = true; // now __count must be > 0, so we don't need to check it anymore
         }
     }
@@ -1859,26 +1850,18 @@ void t_netstd_generator::generate_netstd_struct_hashcode(ostream& out, t_struct*
     for (f_iter = fields.begin(); f_iter != fields.end(); ++f_iter)
     {
         t_type* ttype = (*f_iter)->get_type();
-        if (!field_is_required((*f_iter)))
-        {
-            out << indent() << "if(__isset." << normalize_name((*f_iter)->get_name()) << ")" << endl;
-            indent_up();
-        }
+
+        generate_null_check_begin(out, *f_iter);
         out << indent() << "hashcode = (hashcode * 397) + ";
-        if (ttype->is_container())
-        {
+        if (ttype->is_container()) {
             out << "TCollections.GetHashCode(" << prop_name((*f_iter)) << ")";
         }
-        else
-        {
+        else {
             out << prop_name((*f_iter)) << ".GetHashCode()";
         }
         out << ";" << endl;
 
-        if (!field_is_required((*f_iter)))
-        {
-            indent_down();
-        }
+        generate_null_check_end(out, *f_iter);
     }
 
     indent_down();
@@ -1924,7 +1907,7 @@ void t_netstd_generator::generate_service_interface(ostream& out, t_service* tse
 {
     string extends = "";
     string extends_iface = "";
-    if (tservice->get_extends() != NULL)
+    if (tservice->get_extends() != nullptr)
     {
         extends = type_name(tservice->get_extends());
         extends_iface = " : " + extends + ".IAsync";
@@ -1986,7 +1969,7 @@ void t_netstd_generator::generate_service_client(ostream& out, t_service* tservi
 {
     string extends = "";
     string extends_client = "";
-    if (tservice->get_extends() != NULL)
+    if (tservice->get_extends() != nullptr)
     {
         extends = type_name(tservice->get_extends());
         extends_client = extends + ".Client, ";
@@ -2132,7 +2115,7 @@ void t_netstd_generator::generate_service_server(ostream& out, t_service* tservi
 
     string extends = "";
     string extends_processor = "";
-    if (tservice->get_extends() != NULL)
+    if (tservice->get_extends() != nullptr)
     {
         extends = type_name(tservice->get_extends());
         extends_processor = extends + ".AsyncProcessor, ";
@@ -3120,7 +3103,7 @@ string t_netstd_generator::type_name(t_type* ttype)
     string the_name = check_and_correct_struct_name(normalize_name(ttype->get_name()));
 
     t_program* program = ttype->get_program();
-    if (program != NULL && program != program_)
+    if (program != nullptr && program != program_)
     {
         string ns = program->get_namespace("netstd");
         if (!ns.empty())
@@ -3434,7 +3417,7 @@ string t_netstd_generator::get_enum_class_name(t_type* type)
 {
     string package = "";
     t_program* program = type->get_program();
-    if (program != NULL && program != program_)
+    if (program != nullptr && program != program_)
     {
         package = program->get_namespace("netstd") + ".";
     }
