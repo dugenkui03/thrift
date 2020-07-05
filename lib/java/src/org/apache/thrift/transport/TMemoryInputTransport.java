@@ -18,14 +18,17 @@
  */
 package org.apache.thrift.transport;
 
+//内存输入层
 public final class TMemoryInputTransport extends TTransport {
 
+  /**
+   * byte数组、当前索引、尾节点索引(大小)
+   */
   private byte[] buf_;
   private int pos_;
   private int endPos_;
 
-  public TMemoryInputTransport() {
-  }
+  public TMemoryInputTransport() { }
 
   public TMemoryInputTransport(byte[] buf) {
     reset(buf);
@@ -60,11 +63,16 @@ public final class TMemoryInputTransport extends TTransport {
   @Override
   public void open() throws TTransportException {}
 
+  /**
+   * 从 buf_ 中、pos_开始，读取 min(bytesRemaining,len) 的数据到 buf中
+   * 并递增 pos_、返回真实读取的数据量
+   */
   @Override
   public int read(byte[] buf, int off, int len) throws TTransportException {
     int bytesRemaining = getBytesRemainingInBuffer();
-    int amtToRead = (len > bytesRemaining ? bytesRemaining : len);
+    int amtToRead = (bytesRemaining < len ? bytesRemaining : len);
     if (amtToRead > 0) {
+      //学学
       System.arraycopy(buf_, pos_, buf, off, amtToRead);
       consumeBuffer(amtToRead);
     }
@@ -85,6 +93,9 @@ public final class TMemoryInputTransport extends TTransport {
     return pos_;
   }
 
+  /**
+   * buf中保留的数据 = 尾节点-当前节点
+   */
   public int getBytesRemainingInBuffer() {
     return endPos_ - pos_;
   }

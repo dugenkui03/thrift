@@ -133,7 +133,7 @@ public abstract class TTransport implements Closeable {
     throws TTransportException;
 
   /**
-   * Flush any pending data out of a transport buffer.
+   * Flush(清空) any pending data out of a transport buffer.
    *
    * @throws TTransportException if there was an error writing out data.
    */

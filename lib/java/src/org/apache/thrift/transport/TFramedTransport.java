@@ -22,8 +22,10 @@ package org.apache.thrift.transport;
 import org.apache.thrift.TByteArrayOutputStream;
 
 /**
- * TFramedTransport is a buffered TTransport that ensures a fully read message
- * every time by preceding messages with a 4-byte frame size.
+ * TFramedTransport是个缓存传输层，通过一个 4 字节的帧大小标识位、来保证读取的完整性。
+ *
+ * TFramedTransport is a buffered TTransport that ensures a fully read
+ * message every time by preceding messages with a 4-byte frame size.
  */
 public class TFramedTransport extends TTransport {
 
@@ -99,6 +101,7 @@ public class TFramedTransport extends TTransport {
     transport_.close();
   }
 
+  //从远端读取数据到buf中
   public int read(byte[] buf, int off, int len) throws TTransportException {
     int got = readBuffer_.read(buf, off, len);
     if (got > 0) {

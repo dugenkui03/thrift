@@ -29,7 +29,7 @@ public final class TMessageType {
    * 请求/调用
    * 响应
    * 异常
-   * TODO
+   * CALL、REPLY、EXCEPTION、ONEWAY
    */
   public static final byte CALL  = 1;
   public static final byte REPLY = 2;

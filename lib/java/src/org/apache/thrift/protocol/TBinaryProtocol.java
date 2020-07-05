@@ -34,6 +34,11 @@ public class TBinaryProtocol extends TProtocol {
   private static final TStruct ANONYMOUS_STRUCT = new TStruct();
   private static final long NO_LENGTH_LIMIT = -1;
 
+  /**
+   * 0x开始表示16进制：
+   *    0xffff0000 = 1111111111111111 0000000000000000  //16个1、16个0
+   *    0x80010000 = 1000000000000001 0000000000000000  //1+(14个0)+1+16个0
+   */
   protected static final int VERSION_MASK = 0xffff0000;
   protected static final int VERSION_1 = 0x80010000;
 
@@ -54,6 +59,7 @@ public class TBinaryProtocol extends TProtocol {
   protected boolean strictRead_;
   protected boolean strictWrite_;
 
+  //8个字节
   private final byte[] inoutTemp = new byte[8];
 
   /**
@@ -120,21 +126,24 @@ public class TBinaryProtocol extends TProtocol {
     strictWrite_ = strictWrite;
   }
 
-  //写数据开始的时候调用，将方法名称、类型和序列id等写入到目标buf/流中
+  // 将方法名称、类型和序列id等写入到目标buf/流中，在向远端传递参数数据之前调用
   @Override
   public void writeMessageBegin(TMessage message) throws TException {
     //严格的写
     if (strictWrite_) {
-      //message.type参见 TMessageType：调用、响应、异常、ONEWAY等等
+
+      //向远端传输当前的消息类型：CALL、REPLY、EXCEPTION、ONEWAY
       int version = VERSION_1 | message.type;
-      //将32bit、4字节的数据写入到 流/缓存区/socket 中
       writeI32(version);
-      //将方法名称写入到 buf 中
+
+      //向远端传输当前的方法名称
       writeString(message.name);
-      //将方法的序列ID写入到buf 中
+
+      //向远端传输当前调用的序列ID
       writeI32(message.seqid);
     } else {
-      //方法名称、类型和seqId写入到流中
+
+      //向远端传递方法名称、类型和调用序列ID
       writeString(message.name);
       writeByte(message.type);
       writeI32(message.seqid);
@@ -262,7 +271,10 @@ public class TBinaryProtocol extends TProtocol {
 
   @Override
   public TMessage readMessageBegin() throws TException {
+    //读取8个字节的int类型数据
     int size = readI32();
+
+    //如果要读取的数据小于0
     if (size < 0) {
       int version = size & VERSION_MASK;
       if (version != VERSION_1) {
@@ -365,16 +377,24 @@ public class TBinaryProtocol extends TProtocol {
 
   @Override
   public int readI32() throws TException {
+    //8字节、int型
     byte[] buf = inoutTemp;
+    //偏移量
     int off = 0;
 
+    //trans_：该协议层的传输工具对象
+    //如果可读取的数据大于4字节
     if (trans_.getBytesRemainingInBuffer() >= 4) {
+      //获取缓冲区数据
       buf = trans_.getBuffer();
+      //获取缓存区当前读取位置的偏移量
       off = trans_.getBufferPosition();
+      //偏移量递增4
       trans_.consumeBuffer(4);
     } else {
       readAll(inoutTemp, 0, 4);
     }
+    //返回int值
     return
       ((buf[off] & 0xff) << 24) |
       ((buf[off+1] & 0xff) << 16) |
