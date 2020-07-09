@@ -28,22 +28,18 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
-/**
- * Wrapper around ServerSocket for Thrift.
- *
- */
+//thrift 对 ServerSocket 的包装
 public class TServerSocket extends TServerTransport {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TServerSocket.class.getName());
 
-  /**
-   * Underlying ServerSocket object
-   */
+  //服务端socket对象
   private ServerSocket serverSocket_ = null;
 
   /**
    * Timeout for client sockets from accept
    */
+  //
   private int clientTimeout_ = 0;
 
   public static class ServerSocketTransportArgs extends AbstractServerTransportArgs<ServerSocketTransportArgs> {

@@ -120,6 +120,7 @@ public class TFastFramedTransport extends TTransport {
     return underlying.isOpen();
   }
 
+  //打开传输层连接
   @Override
   public void open() throws TTransportException {
     underlying.open();
@@ -175,7 +176,7 @@ public class TFastFramedTransport extends TTransport {
 
   @Override
   public void flush() throws TTransportException {
-    int payloadLength = writeBuffer.getLength() - 4;        
+    int payloadLength = writeBuffer.getLength() - 4;
     byte[] data = writeBuffer.getBuf().array();
     TFramedTransport.encodeFrameSize(payloadLength, data);
     underlying.write(data, 0, payloadLength + 4);

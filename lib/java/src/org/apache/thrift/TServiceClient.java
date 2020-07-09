@@ -90,7 +90,9 @@ public abstract class TServiceClient {
 
     //将方法名称、类型和序列id 写入到目标buf/流中，在向远端传递参数数据之前调用
     oprot_.writeMessageBegin(tMessage);
-    //写入数据到指定协议，就是TBase类中的write方法，这里是方法对应的TBase类。write方法内容示例如下
+
+
+    //fixme 写入数据到指定协议，就是TBase类中的write方法，这里是方法对应的TBase类。write方法内容示例如下
     //
     //    public void write(TProtocol oprot) throws TException {
     //      //获取指定类型schema的创建工厂

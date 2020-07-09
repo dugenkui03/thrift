@@ -54,14 +54,10 @@ public class TSocket extends TIOStreamTransport {
    */
   private int port_;
 
-  /**
-   * Socket timeout - read timeout on the socket：socket读超时；
-   */
+  //Socket timeout - read timeout on the socket：socket读超时
   private int socketTimeout_;
 
-  /**
-   * Connection timeout：链接超时；
-   */
+  //Connection timeout：链接超时；
   private int connectTimeout_;
 
   /**
@@ -132,9 +128,7 @@ public class TSocket extends TIOStreamTransport {
     initSocket();
   }
 
-  /**
-   * Initializes the socket object
-   */
+  //初始化socket对象，使用到了读写超时
   private void initSocket() {
     socket_ = new Socket();
     try {
@@ -147,30 +141,19 @@ public class TSocket extends TIOStreamTransport {
     }
   }
 
-  /**
-   * Sets the socket timeout and connection timeout.
-   *
-   * @param timeout Milliseconds timeout
-   */
+
+  //读写超时和socket链接超时
   public void setTimeout(int timeout) {
     this.setConnectTimeout(timeout);
     this.setSocketTimeout(timeout);
   }
 
-  /**
-   * Sets the time after which the connection attempt will time out
-   *
-   * @param timeout Milliseconds timeout
-   */
+  //连接超时，毫秒
   public void setConnectTimeout(int timeout) {
     connectTimeout_ = timeout;
   }
 
-  /**
-   * Sets the socket timeout
-   *
-   * @param timeout Milliseconds timeout
-   */
+  //socket读写超时，毫秒
   public void setSocketTimeout(int timeout) {
     socketTimeout_ = timeout;
     try {
@@ -180,9 +163,7 @@ public class TSocket extends TIOStreamTransport {
     }
   }
 
-  /**
-   * Returns a reference to the underlying socket.
-   */
+  //返回对底层socket的引用
   public Socket getSocket() {
     if (socket_ == null) {
       initSocket();
@@ -190,9 +171,7 @@ public class TSocket extends TIOStreamTransport {
     return socket_;
   }
 
-  /**
-   * Checks whether the socket is connected.
-   */
+  //socket 是否为已经链接
   public boolean isOpen() {
     if (socket_ == null) {
       return false;
@@ -203,11 +182,14 @@ public class TSocket extends TIOStreamTransport {
   /**
    * Connects the socket, creating a new socket object if necessary.
    */
+  //连接socket
   public void open() throws TTransportException {
+    //已经链接、抛异常
     if (isOpen()) {
       throw new TTransportException(TTransportException.ALREADY_OPEN, "Socket already connected.");
     }
 
+    //判断主机和端口是否合法
     if (host_ == null || host_.length() == 0) {
       throw new TTransportException(TTransportException.NOT_OPEN, "Cannot open null host.");
     }
@@ -215,12 +197,16 @@ public class TSocket extends TIOStreamTransport {
       throw new TTransportException(TTransportException.NOT_OPEN, "Invalid port " + port_);
     }
 
+    //socket、则使用读写超时创建socket对象
     if (socket_ == null) {
       initSocket();
     }
 
     try {
+      //使用指定connectTimeout和目标主机建立链接
       socket_.connect(new InetSocketAddress(host_, port_), connectTimeout_);
+
+      //fixme 获取socket链接的包装后的输入输出流
       inputStream_ = new BufferedInputStream(socket_.getInputStream());
       outputStream_ = new BufferedOutputStream(socket_.getOutputStream());
     } catch (IOException iox) {
@@ -229,11 +215,9 @@ public class TSocket extends TIOStreamTransport {
     }
   }
 
-  /**
-   * Closes the socket.
-   */
+  //关闭socket
   public void close() {
-    // Close the underlying streams
+    //关闭底层的io流、点进去见自定义的close方法
     super.close();
 
     // Close the socket

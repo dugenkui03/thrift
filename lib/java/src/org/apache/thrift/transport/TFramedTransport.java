@@ -89,6 +89,7 @@ public class TFramedTransport extends TTransport {
     writeBuffer_.write(sizeFiller_, 0, 4);
   }
 
+  //打开传输层连接
   public void open() throws TTransportException {
     transport_.open();
   }
