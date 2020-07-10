@@ -25,6 +25,7 @@ public final class TMemoryInputTransport extends TTransport {
    * byte数组、当前索引、尾节点索引(大小)
    */
   private byte[] buf_;
+  //todo 线程安全？
   private int pos_;
   private int endPos_;
 

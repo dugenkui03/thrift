@@ -26,9 +26,18 @@ import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransport;
 
 /**
- * fixme thrift的二进制协议实现
+ * fixme: "thrift的二进制协议实现"
  *
- * Binary protocol implementation for thrift.
+ *    变量：
+ *        版本mask;
+ *        string长度限制；
+ *        从网络中读取容器类(Map、set、list)的最大长度；NO_LENGTH_LIMIT(-1)则表示没限制
+ *        是否要进行严格的读写；
+ *        8个字节的IO缓存。
+ *
+ *
+ *
+ *
  */
 public class TBinaryProtocol extends TProtocol {
   private static final TStruct ANONYMOUS_STRUCT = new TStruct();
@@ -43,15 +52,13 @@ public class TBinaryProtocol extends TProtocol {
   protected static final int VERSION_1 = 0x80010000;
 
   /**
-   * The maximum number of bytes to read from the transport for
-   * variable-length fields (such as strings or binary) or {@link #NO_LENGTH_LIMIT} for
-   * unlimited.
+   * 当读取的数据为可变长度时、例如String或者二进制数据，
+   * stringLengthLimit_ 表示可以从传输层读取的最大长度， NO_LENGTH_LIMIT (-1)表示没有限制。
    */
   private final long stringLengthLimit_;
 
   /**
-   * The maximum number of elements to read from the network for
-   * containers (maps, sets, lists), or {@link #NO_LENGTH_LIMIT} for unlimited.
+   * 从网络中读取容器类(Map、set、list)的最大长度；NO_LENGTH_LIMIT(-1)则表示没限制；
    */
   private final long containerLengthLimit_;
 
@@ -271,7 +278,7 @@ public class TBinaryProtocol extends TProtocol {
 
   @Override
   public TMessage readMessageBegin() throws TException {
-    //读取8个字节的int类型数据
+    //fixme 读取8个字节的int类型数据：要读取的数据大小？？
     int size = readI32();
 
     //如果要读取的数据小于0
@@ -282,9 +289,11 @@ public class TBinaryProtocol extends TProtocol {
       }
       return new TMessage(readString(), (byte)(size & 0x000000ff), readI32());
     } else {
+      //如果是严格读、"在readMessageBegin中丢失了version，旧版本client？"
       if (strictRead_) {
         throw new TProtocolException(TProtocolException.BAD_VERSION, "Missing version in readMessageBegin, old client?");
       }
+      //
       return new TMessage(readStringBody(size), readByte(), readI32());
     }
   }
@@ -302,6 +311,7 @@ public class TBinaryProtocol extends TProtocol {
 
   @Override
   public TField readFieldBegin() throws TException {
+    //读取的字段是什么类型的
     byte type = readByte();
     short id = type == TType.STOP ? 0 : readI16();
     return new TField("", type, id);
@@ -312,7 +322,9 @@ public class TBinaryProtocol extends TProtocol {
 
   @Override
   public TMap readMapBegin() throws TException {
+    //keyType, valueType, size
     TMap map = new TMap(readByte(), readByte(), readI32());
+    //如果容器长度超过限制、则抛异常
     checkContainerReadLength(map.size);
     return map;
   }
@@ -347,11 +359,16 @@ public class TBinaryProtocol extends TProtocol {
 
   @Override
   public byte readByte() throws TException {
+    //fixme 缓存区剩余可读取的字节数不为空
     if (trans_.getBytesRemainingInBuffer() >= 1) {
+      //你细品，获取的就是指针所在的元素
       byte b = trans_.getBuffer()[trans_.getBufferPosition()];
+      //指针后移
       trans_.consumeBuffer(1);
+      //返回读取的字节数
       return b;
     }
+
     readAll(inoutTemp, 0, 1);
     return inoutTemp[0];
   }
@@ -447,6 +464,7 @@ public class TBinaryProtocol extends TProtocol {
     return readStringBody(size);
   }
 
+  //fixme 读取指定大小的String字符串？
   public String readStringBody(int size) throws TException {
     checkStringReadLength(size);
     byte[] buf = new byte[size];
@@ -471,27 +489,33 @@ public class TBinaryProtocol extends TProtocol {
     return ByteBuffer.wrap(buf);
   }
 
+  /**
+   * 检查读取的 String、byte长度是否合法
+   */
   private void checkStringReadLength(int length) throws TProtocolException {
+    //负数大小、异常
     if (length < 0) {
-      throw new TProtocolException(TProtocolException.NEGATIVE_SIZE,
-                                   "Negative length: " + length);
+      throw new TProtocolException(TProtocolException.NEGATIVE_SIZE, "Negative length: " + length);
     }
+    //如果不是无限制的读取、并且长度超过最大限制，抛异常
     if (stringLengthLimit_ != NO_LENGTH_LIMIT && length > stringLengthLimit_) {
       throw new TProtocolException(TProtocolException.SIZE_LIMIT,
                                    "Length exceeded max allowed: " + length);
     }
   }
 
+
+  //如果容器长度超过限制、则抛异常
   private void checkContainerReadLength(int length) throws TProtocolException {
     if (length < 0) {
-      throw new TProtocolException(TProtocolException.NEGATIVE_SIZE,
-                                   "Negative length: " + length);
+      throw new TProtocolException(TProtocolException.NEGATIVE_SIZE, "Negative length: " + length);
     }
+
     if (containerLengthLimit_ != NO_LENGTH_LIMIT && length > containerLengthLimit_) {
-      throw new TProtocolException(TProtocolException.SIZE_LIMIT,
-                                   "Length exceeded max allowed: " + length);
+      throw new TProtocolException(TProtocolException.SIZE_LIMIT, "Length exceeded max allowed: " + length);
     }
   }
+
 
   private int readAll(byte[] buf, int off, int len) throws TException {
     return trans_.readAll(buf, off, len);

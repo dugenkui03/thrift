@@ -27,7 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * 最常用的基本传输：使用一个输入/输出流作为属性，进行传输操作。
+ * fixme 最常用的基本传输：使用一个输入/输出流作为属性，进行传输操作。
  *
  *
  * This is the most commonly used base transport. It takes an InputStream or

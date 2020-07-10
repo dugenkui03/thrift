@@ -83,12 +83,14 @@ public abstract class TTransport implements Closeable {
     throws TTransportException;
 
   /**
+   * 确保 len bytes 是从传输层读取的。
    * Guarantees that all of len bytes are actually read off the transport.
    *
-   * @param buf Array to read into
-   * @param off Index to start reading at
-   * @param len Maximum number of bytes to read
-   * @return The number of bytes actually read, which must be equal to len
+   * @param buf Array to read into 存放着要读取数据的数组
+   * @param off Index to start reading at 开始读取数组数据的偏移
+   * @param len Maximum number of bytes to read 从数组中中读取数据的最大长度：数组可能没有那么多数据
+   *
+   * @return The number of bytes actually read, which not must be equal to len
    * @throws TTransportException if there was an error reading data
    */
   public int readAll(byte[] buf, int off, int len)
@@ -141,9 +143,12 @@ public abstract class TTransport implements Closeable {
     throws TTransportException {}
 
   /**
-   * Access the protocol's underlying buffer directly. If this is not a
-   * buffered transport, return null.
-   * @return protocol's Underlying buffer
+   * fixme 直接获取 协议/传输层底层的缓存，如果该 传输层 不支持缓存则返回null
+   *
+   * Access the protocol's underlying buffer directly.
+   * If this is not a buffered transport, return null.
+   *
+   * @return protocol's Underlying buffer 协议底层的缓存。
    */
   public byte[] getBuffer() {
     return null;
@@ -160,10 +165,12 @@ public abstract class TTransport implements Closeable {
   }
 
   /**
-   * Get the number of bytes remaining in the underlying buffer. Returns -1 if
-   * this is a non-buffered transport.
-   * @return the number of bytes remaining in the underlying buffer. <br> Returns -1 if
-   * this is a non-buffered transport.
+   * fixme 获取传输层缓存区可读取的字节数量，-1 表示该传输层实现不支持缓存。
+   *
+   * Get the number of bytes remaining in the underlying buffer.
+   * Returns -1 if this is a non-buffered transport.
+   *
+   * @return the number of bytes remaining in the underlying buffer. <br> Returns -1 if this is a non-buffered transport.
    */
   public int getBytesRemainingInBuffer() {
     return -1;

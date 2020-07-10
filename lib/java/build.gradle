@@ -20,6 +20,7 @@
 // Using the legacy plugin classpath for Clover so it can be loaded optionally
 buildscript {
     repositories {
+        maven { url 'https://maven.aliyun.com/repository/google/' }
         mavenCentral()
         google()
         jcenter()

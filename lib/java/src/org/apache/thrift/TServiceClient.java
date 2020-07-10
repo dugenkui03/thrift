@@ -137,6 +137,7 @@ public abstract class TServiceClient {
    * @param methodName 请求方法名称
    */
   protected void receiveBase(TBase<?,?> result, String methodName) throws TException {
+    //开始读取消息
     TMessage msg = iprot_.readMessageBegin();
     if (msg.type == TMessageType.EXCEPTION) {
       TApplicationException x = new TApplicationException();
