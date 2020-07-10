@@ -76,7 +76,7 @@ public abstract class TTransport implements Closeable {
    * @param buf Array to read into 存储数据的数组
    * @param off Index to start reading at 开始读取数据的偏移量
    * @param len Maximum number of bytes to read 可以读取的最大字节数量
-   * @return The number of bytes actually read 实际读取的字节数量—>因为指定的长度可能超过了最大长度
+   * @return The number of bytes actually read fixme 实际读取的字节数量—>因为指定的长度可能超过了最大长度
    * @throws TTransportException if there was an error reading data
    */
   public abstract int read(byte[] buf, int off, int len)
@@ -86,11 +86,11 @@ public abstract class TTransport implements Closeable {
    * 确保 len bytes 是从传输层读取的。
    * Guarantees that all of len bytes are actually read off the transport.
    *
-   * @param buf Array to read into 存放着要读取数据的数组
-   * @param off Index to start reading at 开始读取数组数据的偏移
-   * @param len Maximum number of bytes to read 从数组中中读取数据的最大长度：数组可能没有那么多数据
+   * @param buf Array to read into 存储数据的数组
+   * @param off Index to start reading at 开始读取数据的偏移量
+   * @param len Maximum number of bytes to read 读取的最大字节数量
    *
-   * @return The number of bytes actually read, which not must be equal to len
+   * @return The number of bytes actually read, fixme which must be equal to len，通过轮训实现的
    * @throws TTransportException if there was an error reading data
    */
   public int readAll(byte[] buf, int off, int len)
@@ -98,6 +98,9 @@ public abstract class TTransport implements Closeable {
     int got = 0;
     int ret = 0;
     while (got < len) {
+      //1. 注意len-got是要读取的字节，而非末尾节点索引；
+      //2. 这个算法的意思是：每多读取一个字节，偏移量+1、要读取的数据长度-1；
+      //3. 读取是指从server读取数据到buf中；ret表示每次实际读取的的长度，len-got也表示可读取的最大长度。
       ret = read(buf, off+got, len-got);
       if (ret <= 0) {
         throw new TTransportException(
@@ -155,10 +158,9 @@ public abstract class TTransport implements Closeable {
   }
 
   /**
-   * Return the index within the underlying buffer that specifies the next spot
-   * that should be read from.
-   * @return index within the underlying buffer that specifies the next spot
-   * that should be read from
+   * 读取索引
+   * Return the index within the underlying buffer that specifies the next spot that should be read from.
+   * @return index within the underlying buffer that specifies the next spot that should be read from
    */
   public int getBufferPosition() {
     return 0;

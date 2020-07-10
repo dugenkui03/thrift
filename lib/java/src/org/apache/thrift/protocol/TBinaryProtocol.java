@@ -472,18 +472,25 @@ public class TBinaryProtocol extends TProtocol {
     return new String(buf, StandardCharsets.UTF_8);
   }
 
+  //从远端/传输层读取二进制数据
   @Override
   public ByteBuffer readBinary() throws TException {
+    //要读取的数据长度
     int size = readI32();
 
+    //校验要读取的长度是否合法：超过最长限制
     checkStringReadLength(size);
 
+    //如果传输层有超过要读取长度的数据、则读取指定长度的数据
     if (trans_.getBytesRemainingInBuffer() >= size) {
+      //获取缓存、读取偏移量和缓存大小：remainSize就是 大小-偏移量
+      //ByteBuffer.wrap(baseBuff,baseBuff偏移量,复制的数据量)
       ByteBuffer bb = ByteBuffer.wrap(trans_.getBuffer(), trans_.getBufferPosition(), size);
       trans_.consumeBuffer(size);
       return bb;
     }
 
+    //如果传输层要读取的数据大小不超过
     byte[] buf = new byte[size];
     trans_.readAll(buf, 0, size);
     return ByteBuffer.wrap(buf);
@@ -516,7 +523,8 @@ public class TBinaryProtocol extends TProtocol {
     }
   }
 
-
+  //从传输层读取len的数据到buf中，存放起始偏移量为off
+  //fixme 该方法是传输层的数据不够所要读取的类型时、采用轮训的方式读取的。
   private int readAll(byte[] buf, int off, int len) throws TException {
     return trans_.readAll(buf, off, len);
   }
