@@ -34,10 +34,6 @@ import org.apache.thrift.transport.TTransport;
  *        从网络中读取容器类(Map、set、list)的最大长度；NO_LENGTH_LIMIT(-1)则表示没限制
  *        是否要进行严格的读写；
  *        8个字节的IO缓存。
- *
- *
- *
- *
  */
 public class TBinaryProtocol extends TProtocol {
   private static final TStruct ANONYMOUS_STRUCT = new TStruct();
@@ -66,20 +62,17 @@ public class TBinaryProtocol extends TProtocol {
   protected boolean strictRead_;
   protected boolean strictWrite_;
 
-  //8个字节
+  //8个字节，输入输出缓存
   private final byte[] inoutTemp = new byte[8];
 
-  /**
-   * Factory
-   */
+  //fixme 继承父类工厂
   public static class Factory implements TProtocolFactory {
     //限制的长度
     protected long stringLengthLimit_;
     protected long containerLengthLimit_;
 
-    //严格读取？
+    //严格读写
     protected boolean strictRead_;
-    //严格写入？
     protected boolean strictWrite_;
 
     //读宽松、写严格
@@ -104,27 +97,30 @@ public class TBinaryProtocol extends TProtocol {
       strictWrite_ = strictWrite;
     }
 
-    //fixme 默认读宽松、写严格，长度没有限制
     public TProtocol getProtocol(TTransport trans) {
       return new TBinaryProtocol(trans, stringLengthLimit_, containerLengthLimit_, strictRead_, strictWrite_);
     }
   }
 
   /**
-   * Constructor
+   *  Constructor ============================构造函数====================================
    */
+  //传输协议是必须的
   public TBinaryProtocol(TTransport trans) {
     this(trans, false, true);
   }
 
+  //传输层、严格读写？
   public TBinaryProtocol(TTransport trans, boolean strictRead, boolean strictWrite) {
     this(trans, NO_LENGTH_LIMIT, NO_LENGTH_LIMIT, strictRead, strictWrite);
   }
 
+  //协议长度限制
   public TBinaryProtocol(TTransport trans, long stringLengthLimit, long containerLengthLimit) {
     this(trans, stringLengthLimit, containerLengthLimit, false, true);
   }
 
+  //长度限制、读写严格
   public TBinaryProtocol(TTransport trans, long stringLengthLimit, long containerLengthLimit, boolean strictRead, boolean strictWrite) {
     super(trans);
     stringLengthLimit_ = stringLengthLimit;
@@ -133,23 +129,21 @@ public class TBinaryProtocol extends TProtocol {
     strictWrite_ = strictWrite;
   }
 
-  // 将方法名称、类型和序列id等写入到目标buf/流中，在向远端传递参数数据之前调用
+
+  // fixme 将(方法名称、方法类型和序列id) 写入到目标buf/流中
   @Override
   public void writeMessageBegin(TMessage message) throws TException {
     //严格的写
     if (strictWrite_) {
-
       //向远端传输当前的消息类型：CALL、REPLY、EXCEPTION、ONEWAY
       int version = VERSION_1 | message.type;
+      //写4个int类型，共32个字节
       writeI32(version);
-
       //向远端传输当前的方法名称
       writeString(message.name);
-
       //向远端传输当前调用的序列ID
       writeI32(message.seqid);
     } else {
-
       //向远端传递方法名称、类型和调用序列ID
       writeString(message.name);
       writeByte(message.type);
@@ -166,6 +160,7 @@ public class TBinaryProtocol extends TProtocol {
   @Override
   public void writeStructEnd() throws TException {}
 
+  //fixme 开始写字段：字段类型和字段标识id
   @Override
   public void writeFieldBegin(TField field) throws TException {
     writeByte(field.type);
@@ -174,6 +169,30 @@ public class TBinaryProtocol extends TProtocol {
 
   @Override
   public void writeFieldEnd() throws TException {}
+
+  /**
+   * 写一个包装TBase类的时候：
+   *    1. 验证所有的必要字段是否存在；
+   *    2. 开始写结构；
+   *        2.1 开始写字段；
+   *        2.2 结束写字段；
+   *    3. 结束写字段；
+   *    4. 结束写结构。
+   *
+   *       public void write(TProtocol oprot, fieldUsedInfo_args struct)
+   *               throws TException {
+   *         struct.validate();
+   *
+   *         oprot.writeStructBegin(STRUCT_DESC);
+   *         if (struct.param != null) {
+   *           oprot.writeFieldBegin(PARAM_FIELD_DESC);
+   *           struct.param.write(oprot);
+   *           oprot.writeFieldEnd();
+   *         }
+   *         oprot.writeFieldStop();
+   *         oprot.writeStructEnd();
+   *       }
+   */
 
   @Override
   public void writeFieldStop() throws TException {
@@ -214,10 +233,12 @@ public class TBinaryProtocol extends TProtocol {
     writeByte(b ? (byte)1 : (byte)0);
   }
 
-  //写一个byte、1字节的数据到 流/缓存区/socket 中
+  //写1 byte的数据到 传输层/缓存区/socket 中
   @Override
   public void writeByte(byte b) throws TException {
+    //todo 这到底是个啥
     inoutTemp[0] = b;
+    //写数据到传输层
     trans_.write(inoutTemp, 0, 1);
   }
 
@@ -255,16 +276,21 @@ public class TBinaryProtocol extends TProtocol {
 
   @Override
   public void writeDouble(double dub) throws TException {
+    //double to longBits：double的long表示
     writeI64(Double.doubleToLongBits(dub));
   }
 
   @Override
   public void writeString(String str) throws TException {
     byte[] dat = str.getBytes(StandardCharsets.UTF_8);
+    //fixme writeI32 也是用trans_写数据的，一下两行代码可读性不高
+    //fixme 告诉传输层、一共传输多少字节的代码
     writeI32(dat.length);
+    //写string字节
     trans_.write(dat, 0, dat.length);
   }
 
+  //写二进制
   @Override
   public void writeBinary(ByteBuffer bin) throws TException {
     int length = bin.limit() - bin.position();
@@ -273,9 +299,10 @@ public class TBinaryProtocol extends TProtocol {
   }
 
   /**
-   * Reading methods.
+   * =======================Reading methods=======================
    */
 
+  //fixme 开始读取一个方法的响应、一次请求过程调用一次，在receiveBase中别调用
   @Override
   public TMessage readMessageBegin() throws TException {
     //fixme 读取8个字节的int类型数据：要读取的数据大小？？
@@ -421,9 +448,11 @@ public class TBinaryProtocol extends TProtocol {
 
   @Override
   public long readI64() throws TException {
+    //byte数组指针指向缓存数组
     byte[] buf = inoutTemp;
     int off = 0;
 
+    //如果传输层有指定长度的数据、则
     if (trans_.getBytesRemainingInBuffer() >= 8) {
       buf = trans_.getBuffer();
       off = trans_.getBufferPosition();
@@ -432,6 +461,7 @@ public class TBinaryProtocol extends TProtocol {
       readAll(inoutTemp, 0, 8);
     }
 
+    //返回long值
     return
       ((long)(buf[off]   & 0xff) << 56) |
       ((long)(buf[off+1] & 0xff) << 48) |
@@ -445,11 +475,13 @@ public class TBinaryProtocol extends TProtocol {
 
   @Override
   public double readDouble() throws TException {
+    //bit转double：浮点数的传输
     return Double.longBitsToDouble(readI64());
   }
 
   @Override
   public String readString() throws TException {
+    //读取的长度
     int size = readI32();
 
     checkStringReadLength(size);
@@ -461,13 +493,17 @@ public class TBinaryProtocol extends TProtocol {
       return s;
     }
 
+    //缓存中没有指定长度的String
     return readStringBody(size);
   }
 
-  //fixme 读取指定大小的String字符串？
+  //fixme
   public String readStringBody(int size) throws TException {
+    //检查数据长度是否合法
     checkStringReadLength(size);
+    //缓存：读取的数据就放到这里
     byte[] buf = new byte[size];
+    //fixme 将传输层的数据读取到缓存，注意使用的是readAll，所以会一直轮询到读取指定长度
     trans_.readAll(buf, 0, size);
     return new String(buf, StandardCharsets.UTF_8);
   }
@@ -475,7 +511,7 @@ public class TBinaryProtocol extends TProtocol {
   //从远端/传输层读取二进制数据
   @Override
   public ByteBuffer readBinary() throws TException {
-    //要读取的数据长度
+    //fixme 要读取的数据长度
     int size = readI32();
 
     //校验要读取的长度是否合法：超过最长限制

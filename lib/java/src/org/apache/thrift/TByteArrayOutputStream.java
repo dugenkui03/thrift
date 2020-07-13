@@ -40,7 +40,7 @@ public class TByteArrayOutputStream extends ByteArrayOutputStream {
     this(32);
   }
 
-  //fixme get the buffer where data is stored
+  //fixme 获取存储数据的缓存区
   public byte[] get() {
     return buf;
   }

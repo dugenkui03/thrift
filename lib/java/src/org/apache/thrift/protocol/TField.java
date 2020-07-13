@@ -31,7 +31,7 @@ public class TField {
    * 类的属性名称、类型和序列id
    */
   public final String name;
-  public final byte   type;
+  public final byte   type; //见TType
   public final short  id;
 
   public TField(String n, byte t, short i) {

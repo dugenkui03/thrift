@@ -25,7 +25,7 @@ public final class TMemoryInputTransport extends TTransport {
    * byte数组、当前索引、尾节点索引(大小)
    */
   private byte[] buf_;
-  //todo 线程安全？
+  //使用方式是线程安全的
   private int pos_;
   private int endPos_;
 
@@ -39,6 +39,7 @@ public final class TMemoryInputTransport extends TTransport {
     reset(buf, offset, length);
   }
 
+  //将传输层缓存重置为buff
   public void reset(byte[] buf) {
     reset(buf, 0, buf.length);
   }
@@ -49,6 +50,7 @@ public final class TMemoryInputTransport extends TTransport {
     endPos_ = offset + length;
   }
 
+  //todo 不用设置 pos_ 和 endPos_ ？
   public void clear() {
     buf_ = null;
   }
@@ -56,6 +58,7 @@ public final class TMemoryInputTransport extends TTransport {
   @Override
   public void close() {}
 
+  //总是返回true
   @Override
   public boolean isOpen() {
     return true;
@@ -101,6 +104,7 @@ public final class TMemoryInputTransport extends TTransport {
     return endPos_ - pos_;
   }
 
+  //todo 是否线程安全。可能是因为生成的代码是串行执行的、即那些readXX、所以肯定是线程安全的
   public void consumeBuffer(int len) {
     pos_ += len;
   }
