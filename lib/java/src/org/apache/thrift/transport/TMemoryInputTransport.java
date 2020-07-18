@@ -39,11 +39,12 @@ public final class TMemoryInputTransport extends TTransport {
     reset(buf, offset, length);
   }
 
-  //将传输层缓存重置为buff
+  //将传输层缓存重置为buf
   public void reset(byte[] buf) {
     reset(buf, 0, buf.length);
   }
 
+  //将传输层缓存重置为buf
   public void reset(byte[] buf, int offset, int length) {
     buf_ = buf;
     pos_ = offset;

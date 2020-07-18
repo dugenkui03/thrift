@@ -31,35 +31,31 @@ import org.apache.thrift.protocol.TType;
 import org.apache.thrift.transport.TMemoryInputTransport;
 
 /**
- * fixme 从二进制数组反序列化对象。
+ * fixme 从 二进制数组/字符串 反序列化对象。
  *
  * Generic utility for easily deserializing objects from a byte array or Java String.
  *
  */
 public class TDeserializer {
+  //fixme 发序列化器的对象属性：协议和传输层
   private final TProtocol protocol_;
   private final TMemoryInputTransport trans_;
 
-  /**
-   * Create a new TDeserializer that uses the TBinaryProtocol by default.
-   */
+  //使用默认的二进制协议创建反序列化器TDeserializer
   public TDeserializer() {
     this(new TBinaryProtocol.Factory());
   }
 
-  /**
-   * Create a new TDeserializer. It will use the TProtocol specified by the
-   * factory that is passed in.
-   *
-   * @param protocolFactory Factory to create a protocol
-   */
+  //使用指定的协议工厂创建反序列化器TDeserializer
   public TDeserializer(TProtocolFactory protocolFactory) {
+    //传输层一定是 内存传输层TMemoryInputTransport
     trans_ = new TMemoryInputTransport();
+    //使用 内存传输层 构造传输协议：数据来自传输层。
     protocol_ = protocolFactory.getProtocol(trans_);
   }
 
   /**
-   * Deserialize the Thrift object from a byte array.
+   * 将字节数组反序列化为TBase对象。
    *
    * @param base The object to read into
    * @param bytes The array to read from
@@ -69,6 +65,7 @@ public class TDeserializer {
   }
 
   /**
+   * 将字节数组反序列化为TBase对象、指定byte数组的偏移量和长度。
    * Deserialize the Thrift object from a byte array.
    *
    * @param base The object to read into
@@ -78,7 +75,9 @@ public class TDeserializer {
    */
   public void deserialize(TBase base, byte[] bytes, int offset, int length) throws TException {
     try {
+      //将传输层缓存重置为byte数组指定数据
       trans_.reset(bytes, offset, length);
+      //从输入协议protocol_中读取数据：fixme：这个协议的数据一定来自于上述传输层、看构造函数了解他们是怎么关联起来的
       base.read(protocol_);
     } finally {
       trans_.clear();
@@ -87,8 +86,9 @@ public class TDeserializer {
   }
 
   /**
-   * Deserialize the Thrift object from a Java string, using a specified
-   * character set for decoding.
+   * 使用指定的编码发序列化String类型的data为TBase对象。
+   *
+   * Deserialize the Thrift object from a Java string, using a specified character set for decoding.
    *
    * @param base The object to read into
    * @param data The string to read from
@@ -105,18 +105,19 @@ public class TDeserializer {
   }
 
   /**
-   * Deserialize only a single Thrift object (addressed by recursively using field id)
-   * from a byte record.
-   * @param tb The object to read into
-   * @param bytes The serialized object to read from
+   * Deserialize only a single Thrift object (addressed by recursively using field id) from a byte record.
+   *
+   * @param tb The object to read into 被反序列化的数据
+   * @param bytes The serialized object to read from 存储数据的byte数组
    * @param fieldIdPathFirst First of the FieldId's that define a path tb
    * @param fieldIdPathRest The rest FieldId's that define a path tb
    * @throws TException
    */
   public void partialDeserialize(TBase tb, byte[] bytes, TFieldIdEnum fieldIdPathFirst, TFieldIdEnum ... fieldIdPathRest) throws TException {
     try {
+      //locateField方法将数据放在了protocol_中
       if (locateField(bytes, fieldIdPathFirst, fieldIdPathRest) != null) {
-        // if this line is reached, iprot will be positioned at the start of tb.
+        // if this line is reached, iprot will be positioned at(被定位在) the start of tb.
         tb.read(protocol_);
       }
     } catch (Exception e) {
@@ -289,8 +290,10 @@ public class TDeserializer {
   }
 
   private TField locateField(byte[] bytes, TFieldIdEnum fieldIdPathFirst, TFieldIdEnum ... fieldIdPathRest) throws TException {
+    // 将传输层缓存重置为bytes、此时才可以使用协议读取数据
     trans_.reset(bytes);
 
+    //将TFieldIdEnum数组拷贝到fieldIdPath中
     TFieldIdEnum[] fieldIdPath = new TFieldIdEnum[fieldIdPathRest.length + 1];
     fieldIdPath[0] = fieldIdPathFirst;
     System.arraycopy(fieldIdPathRest, 0, fieldIdPath, 1, fieldIdPathRest.length);
@@ -299,19 +302,24 @@ public class TDeserializer {
     int curPathIndex = 0;
 
     // this will be the located field, or null if it is not located
+    // 类的属性名称、类型和序列id
     TField field = null;
 
+    //开始读取结构体：因为字段肯定在结构中
     protocol_.readStructBegin();
 
+    //
     while (curPathIndex < fieldIdPath.length) {
+      //开始读取字段：field包含字段的类型和序列id
       field = protocol_.readFieldBegin();
       // we can stop searching if we either see a stop or we go past the field
-      // id we're looking for (since fields should now be serialized in asc
-      // order).
+      // id we're looking for (since fields should now be serialized in asc order).
+      // 字段按照升序进行序列化：当遇到 stop 或者 遍历超过字段id时，停止搜索。
       if (field.type == TType.STOP || field.id > fieldIdPath[curPathIndex].getThriftFieldId()) {
         return null;
       }
 
+      //不是我们要的field、跳过
       if (field.id != fieldIdPath[curPathIndex].getThriftFieldId()) {
         // Not the field we're looking for. Skip field.
         TProtocolUtil.skip(protocol_, field.type);
@@ -328,11 +336,11 @@ public class TDeserializer {
   }
 
   /**
-   * Deserialize the Thrift object from a Java string, using the default JVM
-   * charset encoding.
+   * 将string发序列化为TBased对象、转换为二进制后反序列化，String使用jvm默认的编码。
+   * Deserialize the Thrift object from a Java string, using the default JVM charset encoding.
    *
-   * @param base The object to read into
-   * @param data The string to read from
+   * @param base The object to read into 写入的数据
+   * @param data The string to read from 数据来源
    */
   public void fromString(TBase base, String data) throws TException {
     deserialize(base, data.getBytes());

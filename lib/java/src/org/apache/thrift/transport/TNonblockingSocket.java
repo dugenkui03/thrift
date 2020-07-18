@@ -123,7 +123,7 @@ public class TNonblockingSocket extends TNonblockingTransport {
     try {
       socketChannel_.socket().setSoTimeout(timeout);
     } catch (SocketException sx) {
-      LOGGER.warn("Could not set socket timeout.", sx);
+//      LOGGER.warn("Could not set socket timeout.", sx);
     }
   }
 
@@ -207,7 +207,7 @@ public class TNonblockingSocket extends TNonblockingTransport {
     try {
       socketChannel_.close();
     } catch (IOException iox) {
-      LOGGER.warn("Could not close socket.", iox);
+//      LOGGER.warn("Could not close socket.", iox);
     }
   }
 

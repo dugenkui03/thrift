@@ -36,13 +36,15 @@ import org.apache.thrift.transport.TTransport;
  *        8个字节的IO缓存。
  */
 public class TBinaryProtocol extends TProtocol {
+  //匿名STRUCT
   private static final TStruct ANONYMOUS_STRUCT = new TStruct();
+  //读写没有限制
   private static final long NO_LENGTH_LIMIT = -1;
 
   /**
    * 0x开始表示16进制：
-   *    0xffff0000 = 1111111111111111 0000000000000000  //16个1、16个0
-   *    0x80010000 = 1000000000000001 0000000000000000  //1+(14个0)+1+16个0
+   *    0xffff0000 = -10000000000000000
+   *    0x80010000 = -111111111111111 0000000000000000
    */
   protected static final int VERSION_MASK = 0xffff0000;
   protected static final int VERSION_1 = 0x80010000;
@@ -122,6 +124,11 @@ public class TBinaryProtocol extends TProtocol {
 
   //长度限制、读写严格
   public TBinaryProtocol(TTransport trans, long stringLengthLimit, long containerLengthLimit, boolean strictRead, boolean strictWrite) {
+    /**
+     *   protected TProtocol(TTransport trans) {
+     *     trans_ = trans;
+     *   }
+     */
     super(trans);
     stringLengthLimit_ = stringLengthLimit;
     containerLengthLimit_ = containerLengthLimit;
@@ -194,11 +201,13 @@ public class TBinaryProtocol extends TProtocol {
    *       }
    */
 
+  //fixme 写一个Struct的所有的字段结束时调用
   @Override
   public void writeFieldStop() throws TException {
     writeByte(TType.STOP);
   }
 
+  //写入k\v类型和map大小
   @Override
   public void writeMapBegin(TMap map) throws TException {
     writeByte(map.keyType);
@@ -209,6 +218,7 @@ public class TBinaryProtocol extends TProtocol {
   @Override
   public void writeMapEnd() throws TException {}
 
+  //元素类型和大小
   @Override
   public void writeListBegin(TList list) throws TException {
     writeByte(list.elemType);
@@ -218,6 +228,7 @@ public class TBinaryProtocol extends TProtocol {
   @Override
   public void writeListEnd() throws TException {}
 
+  //元素类型和大小
   @Override
   public void writeSetBegin(TSet set) throws TException {
     writeByte(set.elemType);
@@ -302,25 +313,34 @@ public class TBinaryProtocol extends TProtocol {
    * =======================Reading methods=======================
    */
 
-  //fixme 开始读取一个方法的响应、一次请求过程调用一次，在receiveBase中别调用
+  //fixme 开始读取一个方法的响应
+  // 一次请求过程调用一次，在receiveBase中别调用
   @Override
   public TMessage readMessageBegin() throws TException {
-    //fixme 读取8个字节的int类型数据：要读取的数据大小？？
+    // 方法名称的size、参见 writeMessageBegin
+    // 在 writeString(message.name)中，先调用 writeI32(dat.length) 把方法名长度写了出去
     int size = readI32();
 
-    //如果要读取的数据小于0
+    //如果方法名称小于0、抛异常
     if (size < 0) {
+      //todo 啥么意思呢？
+      //int version = VERSION_1 | message.type;
       int version = size & VERSION_MASK;
       if (version != VERSION_1) {
         throw new TProtocolException(TProtocolException.BAD_VERSION, "Bad version in readMessageBegin");
       }
+      //(byte)(size & 0x000000ff) 表示类型？
       return new TMessage(readString(), (byte)(size & 0x000000ff), readI32());
     } else {
       //如果是严格读、"在readMessageBegin中丢失了version，旧版本client？"
       if (strictRead_) {
         throw new TProtocolException(TProtocolException.BAD_VERSION, "Missing version in readMessageBegin, old client?");
       }
-      //
+      /**
+       * readStringBody(size) 方法名称；
+       * readByte() 方法类型
+       * readI32() 序列id
+       */
       return new TMessage(readStringBody(size), readByte(), readI32());
     }
   }
@@ -328,6 +348,7 @@ public class TBinaryProtocol extends TProtocol {
   @Override
   public void readMessageEnd() throws TException {}
 
+  //返回常量ANONYMOUS_STRUCT
   @Override
   public TStruct readStructBegin() throws TException {
     return ANONYMOUS_STRUCT;
@@ -336,11 +357,14 @@ public class TBinaryProtocol extends TProtocol {
   @Override
   public void readStructEnd() throws TException {}
 
+  //fixme 获取读取字段的类型和序列号
   @Override
   public TField readFieldBegin() throws TException {
     //读取的字段是什么类型的
     byte type = readByte();
+    //读取字段的序列号
     short id = type == TType.STOP ? 0 : readI16();
+    //字段名称、类型、序列id
     return new TField("", type, id);
   }
 
@@ -405,6 +429,7 @@ public class TBinaryProtocol extends TProtocol {
     byte[] buf = inoutTemp;
     int off = 0;
 
+    //如果传输层数据大于2个字节、即16bit。获取缓存和偏移量
     if (trans_.getBytesRemainingInBuffer() >= 2) {
       buf = trans_.getBuffer();
       off = trans_.getBufferPosition();
@@ -413,6 +438,7 @@ public class TBinaryProtocol extends TProtocol {
       readAll(inoutTemp, 0, 2);
     }
 
+    //从byte数组读取16位、2字节的数据；0xff = 11111111 11111111
     return
       (short)
       (((buf[off] & 0xff) << 8) |
@@ -438,7 +464,9 @@ public class TBinaryProtocol extends TProtocol {
     } else {
       readAll(inoutTemp, 0, 4);
     }
-    //返回int值
+
+    //与运算：0&0=0;   0&1=0;    1&0=0;     1&1=1
+    //或运算：0|0=0；   0|1=1；   1|0=1；    1|1=1
     return
       ((buf[off] & 0xff) << 24) |
       ((buf[off+1] & 0xff) << 16) |
@@ -452,7 +480,6 @@ public class TBinaryProtocol extends TProtocol {
     byte[] buf = inoutTemp;
     int off = 0;
 
-    //如果传输层有指定长度的数据、则
     if (trans_.getBytesRemainingInBuffer() >= 8) {
       buf = trans_.getBuffer();
       off = trans_.getBufferPosition();
@@ -479,9 +506,13 @@ public class TBinaryProtocol extends TProtocol {
     return Double.longBitsToDouble(readI64());
   }
 
+  /**
+   * 读取不定长的String类型数据：
+   *    1. 要读取的数据长度;
+   *    2. 如果缓存数据足够、则从缓存直接获取，如果不够、则使用readStringBody轮询获取；
+   */
   @Override
   public String readString() throws TException {
-    //读取的长度
     int size = readI32();
 
     checkStringReadLength(size);
@@ -497,7 +528,7 @@ public class TBinaryProtocol extends TProtocol {
     return readStringBody(size);
   }
 
-  //fixme
+  //fixme 从传输层读取指定大小的数据
   public String readStringBody(int size) throws TException {
     //检查数据长度是否合法
     checkStringReadLength(size);
@@ -520,7 +551,7 @@ public class TBinaryProtocol extends TProtocol {
     //如果传输层有超过要读取长度的数据、则读取指定长度的数据
     if (trans_.getBytesRemainingInBuffer() >= size) {
       //获取缓存、读取偏移量和缓存大小：remainSize就是 大小-偏移量
-      //ByteBuffer.wrap(baseBuff,baseBuff偏移量,复制的数据量)
+      //ByteBuffer.wrap(baseBuff,baseBuff偏移量,复制的数据长度)
       ByteBuffer bb = ByteBuffer.wrap(trans_.getBuffer(), trans_.getBufferPosition(), size);
       trans_.consumeBuffer(size);
       return bb;

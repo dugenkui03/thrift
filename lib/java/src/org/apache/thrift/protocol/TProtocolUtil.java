@@ -53,13 +53,13 @@ public class TProtocolUtil {
   }
 
   /**
+   * 跳过 协议prot 中指定类型的数据段
    * Skips over the next data element from the provided input TProtocol object.
    *
    * @param prot  the protocol object to read from 读取数据的协议
    * @param type  the next value will be interpreted as this TType value.
    */
-  public static void skip(TProtocol prot, byte type)
-    throws TException {
+  public static void skip(TProtocol prot, byte type) throws TException {
     skip(prot, type, maxSkipDepth);
   }
 
@@ -71,11 +71,11 @@ public class TProtocolUtil {
    * @param maxDepth  this function will only skip complex objects to this
    *   recursive depth, to prevent Java stack overflow.
    */
-  public static void skip(TProtocol prot, byte type, int maxDepth)
-  throws TException {
+  public static void skip(TProtocol prot, byte type, int maxDepth) throws TException {
     if (maxDepth <= 0) {
       throw new TException("Maximum skip depth exceeded");
     }
+    //fixme 通过读取指定类型数据、跳过指定数据
     switch (type) {
       case TType.BOOL:
         prot.readBool();
@@ -105,19 +105,27 @@ public class TProtocolUtil {
         prot.readBinary();
         break;
 
+      //如果是STRUCT
       case TType.STRUCT:
+        //开始读取结构：返回结果 TStruct 每个类都有、构造函数为类名称
+        //example：private static final TStruct STRUCT_DESC = new TStruct("TspUdsApiResponse");
         prot.readStructBegin();
         while (true) {
+          //开始读取字段
           TField field = prot.readFieldBegin();
           if (field.type == TType.STOP) {
             break;
           }
+          //此协议跳过一个指定类型
           skip(prot, field.type, maxDepth - 1);
+          //读取字段结束
           prot.readFieldEnd();
         }
+        //读取结构结束
         prot.readStructEnd();
         break;
 
+      //读取map
       case TType.MAP:
         TMap map = prot.readMapBegin();
         for (int i = 0; i < map.size; i++) {

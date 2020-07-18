@@ -33,6 +33,12 @@ import org.apache.thrift.transport.TTransport;
  */
 public abstract class TProtocol {
 
+
+  /**fixme 全局唯一属性
+   * Transport 协议将数据进行包装后、使用传输层的流工具进行数据传输
+   */
+  protected TTransport trans_;
+
   /**
    * fixme private 防止直接实例化
    * Prevent direct instantiation
@@ -40,11 +46,6 @@ public abstract class TProtocol {
   @SuppressWarnings("unused")
   private TProtocol() {}
 
-  /**
-   * 协议将数据进行包装后、使用传输层的流工具进行数据传输
-   * Transport
-   */
-  protected TTransport trans_;
 
   /**
    * Constructor
@@ -153,8 +154,9 @@ public abstract class TProtocol {
   public abstract ByteBuffer readBinary() throws TException;
 
   /**
-   * Reset any internal state back to a blank slate. This method only needs to
-   * be implemented for stateful protocols.
+   * 将协议中所有的状态都重置为"空白状态"、仅有状态协议实现。
+   * Reset any internal state back to a blank slate.
+   * This method only needs to be implemented for stateful protocols.
    */
   public void reset() {}
 

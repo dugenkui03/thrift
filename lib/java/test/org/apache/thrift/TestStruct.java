@@ -97,7 +97,7 @@ public class TestStruct extends TestCase {
   }
 
   public void testDeepCopy() throws Exception {
-    TSerializer   binarySerializer   = new   TSerializer(new TBinaryProtocol.Factory());
+    TSerializer binarySerializer = new TSerializer(new TBinaryProtocol.Factory());
     TDeserializer binaryDeserializer = new TDeserializer(new TBinaryProtocol.Factory());
 
     HolyMoley hm = Fixtures.holyMoley;
@@ -277,7 +277,7 @@ public class TestStruct extends TestCase {
         "97 6A 95 6C 93 6E 91 70 8F 72 8D 74 8B 76 89 78 87 7A 85 7C 83 "+
         "7E 81)",
         object.toString());
- 
+
     object.req_bin = ByteBuffer.wrap(new byte[] {
       0, -1, 2, -3, 4, -5, 6, -7, 8, -9, 10, -11, 12, -13, 14, -15,
       16, -17, 18, -19, 20, -21, 22, -23, 24, -25, 26, -27, 28, -29,
@@ -304,7 +304,7 @@ public class TestStruct extends TestCase {
     object.req_bin = ByteBuffer.wrap(new byte[] {});
     object.setOpt_binIsSet(true);
 
-    assertEquals("JavaTestHelper(req_int:0, req_obj:, req_bin:)", 
+    assertEquals("JavaTestHelper(req_int:0, req_obj:, req_bin:)",
         object.toString());
   }
 
@@ -315,7 +315,7 @@ public class TestStruct extends TestCase {
   }
 
   public void testBytesBufferFeatures() throws Exception {
-    
+
     final String testString = "testBytesBufferFeatures";
     final JavaTestHelper o = new JavaTestHelper();
 
@@ -347,7 +347,7 @@ public class TestStruct extends TestCase {
   public void testJavaSerializable() throws Exception {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     ObjectOutputStream oos = new ObjectOutputStream(baos);
-    
+
     OneOfEach ooe = Fixtures.oneOfEach;
 
     // Serialize ooe the Java way...
