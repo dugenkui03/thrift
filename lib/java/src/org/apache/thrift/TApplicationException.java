@@ -26,17 +26,18 @@ import org.apache.thrift.protocol.TStruct;
 import org.apache.thrift.protocol.TType;
 
 /**
+ * 应用相关的异常
  * Application level exception
- *
  */
 public class TApplicationException extends TException implements TSerializable {
-
+  //应用异常相关的结构、字段定义
   private static final TStruct TAPPLICATION_EXCEPTION_STRUCT = new TStruct("TApplicationException");
   private static final TField MESSAGE_FIELD = new TField("message", TType.STRING, (short)1);
-  private static final TField TYPE_FIELD = new TField("type", TType.I32, (short)2);
+  private static final TField TYPE_FIELD = new TField("type", TType.I32, (short)2);//32位、4字节，int类型的
 
   private static final long serialVersionUID = 1L;
 
+  //异常类型
   public static final int UNKNOWN = 0;
   public static final int UNKNOWN_METHOD = 1;
   public static final int INVALID_MESSAGE_TYPE = 2;
@@ -84,22 +85,27 @@ public class TApplicationException extends TException implements TSerializable {
     }
   }
 
-  public void read(TProtocol iprot) throws TException
-  {
-    TField field;
+  //fixme 注意，最后从iprot中获取的信息赋值给了当前对象成员变量
+  public void read(TProtocol iprot) throws TException {
+    //开始读取异常信息
     iprot.readStructBegin();
 
+    TField field;
     String message = null;
     int type = UNKNOWN;
 
     while (true) {
+      //获取到字段的名称、类型信息
       field = iprot.readFieldBegin();
+      //如果类型为stop、则break while
       if (field.type == TType.STOP) {
         break;
       }
+      // 1：message；2.type； other：skip
       switch (field.id) {
         case 1:
           if (field.type == TType.STRING) {
+            //fixme 读取String类型信息的时候，会先获取String的大小、然后读取byte数组
             message = iprot.readString();
           } else {
             TProtocolUtil.skip(iprot, field.type);
@@ -119,22 +125,22 @@ public class TApplicationException extends TException implements TSerializable {
       iprot.readFieldEnd();
     }
     iprot.readStructEnd();
+
+    //fixme
     type_ = type;
     message_ = message;
   }
 
-  /**
-   * Convenience factory method for constructing a TApplicationException given a TProtocol input
-   */
-  public static TApplicationException readFrom(TProtocol iprot) throws TException
-  {
+  // Convenience factory method for constructing a TApplicationException given a TProtocol input
+  public static TApplicationException readFrom(TProtocol iprot) throws TException {
     TApplicationException result = new TApplicationException();
+    //从指定的协议获取异常信息：read方法包含对 对象成员属性 的赋值
     result.read(iprot);
     return result;
   }
 
-  public void write(TProtocol oprot) throws TException
-  {
+  //将异常信息通过协议响应该远端
+  public void write(TProtocol oprot) throws TException {
     oprot.writeStructBegin(TAPPLICATION_EXCEPTION_STRUCT);
     if (getMessage() != null) {
       oprot.writeFieldBegin(MESSAGE_FIELD);

@@ -8,6 +8,11 @@ import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 自定义service的方法、与其内部类Processor中的每个内部方法类一一对应，这些类方法继承了ProcessFunction
+ * @param <I>
+ * @param <T> 对方法
+ */
 public abstract class ProcessFunction<I, T extends TBase> {
 
   //方法名称
@@ -23,26 +28,36 @@ public abstract class ProcessFunction<I, T extends TBase> {
    * @param seqid 序列id
    * @param iprot 输入协议
    * @param oprot 输出协议
-   * @param iface 在抽象方法 getResult 中被调用，每个方法都实现了getResult
+   * @param iface 对应一个自定义的service，里边包含methodName
    */
   public final void process(int seqid, TProtocol iprot, TProtocol oprot, I iface) throws TException {
+    //获取该方法参数包装类、但是没有set任何数据
     T args = getEmptyArgsInstance();
     try {
+      //todo 数据读取到哪了？读取到args中了？、哇～～～～
       args.read(iprot);
     } catch (TProtocolException e) {
       iprot.readMessageEnd();
-      TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
+      TApplicationException applicationException = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
       oprot.writeMessageBegin(new TMessage(getMethodName(), TMessageType.EXCEPTION, seqid));
-      x.write(oprot);
+      applicationException.write(oprot);
       oprot.writeMessageEnd();
       oprot.getTransport().flush();
       return;
     }
     iprot.readMessageEnd();
-    TSerializable result = null;
-    byte msgType = TMessageType.REPLY;
 
+
+    byte msgType = TMessageType.REPLY;
+    TSerializable result = null;
     try {
+      /**fixme 注意、继承该抽象类的类就是Processor中的内部方法类，所以getResult肯定知道调用哪个方法、生成代码写死的。demo
+       *       protected query_result getResult(I iface, query_args args) throws TException {
+       *         query_result result = new query_result();
+       *         result.success = iface.query(args.param);
+       *         return result;
+       *       }
+       */
       result = getResult(iface, args);
     } catch (TTransportException ex) {
       LOGGER.error("Transport error while processing " + getMethodName(), ex);
@@ -95,7 +110,12 @@ public abstract class ProcessFunction<I, T extends TBase> {
    */
   public abstract TBase getResult(I iface, T args) throws TException;
 
-  //获取空参数对象
+  /**
+   * 获取方法参数包装类、但是没有set任何数据
+   *       protected 方法名称_args getEmptyArgsInstance() {
+   *         return new 方法名称_args();
+   *       }
+   */
   public abstract T getEmptyArgsInstance();
 
   public String getMethodName() {

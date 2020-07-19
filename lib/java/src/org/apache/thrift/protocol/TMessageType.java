@@ -33,6 +33,7 @@ public final class TMessageType {
    */
   public static final byte CALL  = 1;
   public static final byte REPLY = 2;
+  //请求到服务端有异常信息是、比如ProcessFunction不存在，使用该tag响应。
   public static final byte EXCEPTION = 3;
   public static final byte ONEWAY = 4;
 }
