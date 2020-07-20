@@ -45,7 +45,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
-/**
+/**todo Selector
  * A Half-Sync/Half-Async server with a separate pool of threads to handle
  * non-blocking I/O. Accepts are handled on a single thread, and a configurable
  * number of nonblocking selector threads manage reading and writing of client

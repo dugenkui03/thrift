@@ -42,9 +42,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * Provides common methods and classes used by nonblocking TServer
- * implementations.
+/**todo Selector
+ * Provides common methods and classes used by nonblocking TServer implementations.
  */
 public abstract class AbstractNonblockingServer extends TServer {
   protected final Logger LOGGER = LoggerFactory.getLogger(getClass().getName());

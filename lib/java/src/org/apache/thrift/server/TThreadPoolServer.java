@@ -37,7 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Server which uses Java's built in ThreadPool management to spawn off
+ * 使用java内置的ThreadPool、以阻塞的方式处理客户端链接。
+ *
+ * Server which uses Java's built in ThreadPool management to spawn off(产生)
  * a worker pool that deals with client connections in blocking way.
  */
 public class TThreadPoolServer extends TServer {

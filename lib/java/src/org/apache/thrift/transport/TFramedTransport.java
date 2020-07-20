@@ -32,13 +32,14 @@ public class TFramedTransport extends TTransport {
   //要读取数据的最大长度和使用的默认最大长度
   private int maxLength_;
 
-  //二进制的 1111_1010_0000_#_0000_0000_0000
+  //二进制的 1111_1010 # 0000_0000_0000_0000
   protected static final int DEFAULT_MAX_LENGTH = 16384000;
 
   //fixme 底层的传输层：继承+组合
   private TTransport transport_ = null;
 
-  //输出缓存/写缓存
+  //fixme 输出流：比父类ByteArrayOutputStream多了三个语法糖方法：
+  //      获取byte数组 buf 的getter；buf的大小、清空buf(buf = new byte[initialSize])
   private final TByteArrayOutputStream writeBuffer_ = new TByteArrayOutputStream(1024);
 
   //读取缓存/输入缓存
@@ -62,7 +63,7 @@ public class TFramedTransport extends TTransport {
     }
   }
 
-  /**
+  /**fixme 标识缓冲区大小？一直都00 0x00，与运算为0、或运算保持不变
    * Something to fill in the first four bytes of the buffer to make room for the frame size.
    * This allows the implementation to write once instead of twice.
    *
@@ -70,18 +71,18 @@ public class TFramedTransport extends TTransport {
    */
   private static final byte[] sizeFiller_ = new byte[] { 0x00, 0x00, 0x00, 0x00 };
 
-  /**
-   * 使用另外一个传输层和 指定/默认 最大传输长度构造帧传输层。
-   */
+  //使用另外一个传输层和 指定/默认 最大传输长度构造帧传输层。
   public TFramedTransport(TTransport transport, int maxLength) {
     transport_ = transport;
     maxLength_ = maxLength;
+    //将sizeFiller_的前4个字节写入到输出流
     writeBuffer_.write(sizeFiller_, 0, 4);
   }
 
   public TFramedTransport(TTransport transport) {
     transport_ = transport;
     maxLength_ = TFramedTransport.DEFAULT_MAX_LENGTH;
+    //将sizeFiller_的前4个字节写入到输出流
     writeBuffer_.write(sizeFiller_, 0, 4);
   }
 
@@ -100,17 +101,25 @@ public class TFramedTransport extends TTransport {
     transport_.close();
   }
 
-  //todo 从远端读取数据到buf中
+  /**
+   * 从输入流读取数据到buf中
+   * @param buf Array to read into 存储数据的数组
+   * @param off Index to start reading at 在buf中开始存储数据的偏移量
+   * @param len Maximum number of bytes to read 期望读取的最大字节数量
+   */
   public int read(byte[] buf, int off, int len) throws TTransportException {
+    //从输入流读取最多len的数据到buf中、存放位置从off开始。fixme 返回实际读取到的数据长度
     int got = readBuffer_.read(buf, off, len);
+    //读取到数据则返回
     if (got > 0) {
       return got;
     }
 
+    //如果从输入流中没有读取到数据、表示输入流中没有数据了(getBytesRemainingInBuffer = endPos_ - pos_ = 0)
     // Read another frame of data
-    //todo 读取另一帧数据
     readFrame();
 
+    // 在执行"readBuffer_.read(buf, off, len)"、从输入流中读取数据
     return readBuffer_.read(buf, off, len);
   }
 
@@ -146,29 +155,25 @@ public class TFramedTransport extends TTransport {
   //32 byte数据的缓存？
   private final byte[] i32buf = new byte[4];
 
-  //todo 读取
   private void readFrame() throws TTransportException {
-    //fixme 获取要读取帧的大小
-    //读取4个字节的数据到i32buf
+    //从传输层读取32bit、4字节大小的数据到i32buf中、表示要获取的数据的大小？
     transport_.readAll(i32buf, 0, 4);
-    //将4 byte数组解析为int类型、表示帧大小
     int size = decodeFrameSize(i32buf);
 
-    //fixme 检查读取到的帧大小
-    //读取到的数据小于0、则关闭传输层并抛异常
+    /**
+     * 要读取到的数据小于0、或者超过阈值、则关闭传输层并抛异常
+     */
     if (size < 0) {
-      close();
+      close();//关闭传输层
       throw new TTransportException(TTransportException.CORRUPTED_DATA, "Read a negative frame size (" + size + ")!");
     }
 
-    //读取到的数据大于最大长度、也关闭传输层比个抛异常
     if (size > maxLength_) {
-      close();
-      throw new TTransportException(TTransportException.CORRUPTED_DATA,
-          "Frame size (" + size + ") larger than max length (" + maxLength_ + ")!");
+      close();//关闭传输层
+      throw new TTransportException(TTransportException.CORRUPTED_DATA, "Frame size (" + size + ") larger than max length (" + maxLength_ + ")!");
     }
 
-    //将数据读取到buf、并且将传输层缓存重置为buff
+    //fixme 将数据读取到buf、并且将传输层缓存重置为buff
     byte[] buff = new byte[size];
     transport_.readAll(buff, 0, size);
     //将传输层缓存重置为buff
@@ -180,23 +185,32 @@ public class TFramedTransport extends TTransport {
     writeBuffer_.write(buf, off, len);
   }
 
-  //flush 清除缓存
+  /**
+   * fixme:
+   *    1. 清空底层缓存数据；
+   *    2. 将要清空的数据通过协议写向远端。
+   */
   @Override
   public void flush() throws TTransportException {
+    //获取底层缓存
     byte[] buf = writeBuffer_.get();
 
-    // account for the prepended frame size
-    // 因为有4byte数据标识数据大小，并不缓存数据
+    // "account for the prepended frame size" todo 缓存区字节大小减去4；
     int len = writeBuffer_.len() - 4;
+
+    //将writeBuffer底层缓存数组重置为空数组、fixme 注意，buf指向的数组仍然是存放着数据的
     writeBuffer_.reset();
-    // make room for the next frame's size data
-    //为下一帧 "数据大小" 存储区
+
+    //"make room for the next frame's size data" 将sizeFiller_中的4个字节写入到输出流
     writeBuffer_.write(sizeFiller_, 0, 4);
 
-    // this is the frame length without the filler
-    // 没有filter的帧长度
+    // "this is the frame length without the filler"
+    // fixme 将"没有filter的帧长度"放到buf前四位字节数组中
     encodeFrameSize(len, buf);
-    transport_.write(buf, 0, len + 4);      // we have to write the frame size and frame data
+
+    // we have to write the frame size and frame data
+    // 将要清空的数据写向远端
+    transport_.write(buf, 0, len + 4);
     transport_.flush();
   }
 

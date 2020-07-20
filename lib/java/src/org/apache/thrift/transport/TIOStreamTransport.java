@@ -29,7 +29,6 @@ import java.io.OutputStream;
 /**
  * fixme 最常用的基本传输：使用一个输入/输出流作为属性，进行传输操作。
  *
- *
  * This is the most commonly used base transport. It takes an InputStream or
  * an OutputStream or both and uses it/them to perform transport operations.
  *
@@ -42,66 +41,50 @@ public class TIOStreamTransport extends TTransport {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TIOStreamTransport.class.getName());
 
-  /** Underlying inputStream */
+  /** Underlying inputStream 底层输入流 */
   protected InputStream inputStream_ = null;
 
-  /** Underlying outputStream */
+  /** Underlying outputStream 输入流 */
   protected OutputStream outputStream_ = null;
 
+
   /**
-   * Subclasses can invoke the default constructor and then assign the input
-   * streams in the open method.
+   * ===============================构造函数===============================
+   */
+
+  /**
+   * "??子类可以调用默认构造参数、然后在 open() 中 指定输入流??"。
+   * Subclasses can invoke the default constructor and
+   * then assign the input streams in the open method.
    */
   protected TIOStreamTransport() {}
 
-  /**
-   * Input stream constructor, constructs an input only transport.
-   *
-   * @param is Input stream to read from
-   */
   public TIOStreamTransport(InputStream is) {
     inputStream_ = is;
   }
 
-  /**
-   * Output stream constructor, constructs an output only transport.
-   *
-   * @param os Output stream to write to
-   */
   public TIOStreamTransport(OutputStream os) {
     outputStream_ = os;
   }
 
-  /**
-   * Two-way stream constructor.
-   *
-   * @param is Input stream to read from
-   * @param os Output stream to read from
-   */
   public TIOStreamTransport(InputStream is, OutputStream os) {
     inputStream_ = is;
     outputStream_ = os;
   }
 
   /**
-   * 输入输出流、有一个部位null，则表示传输层打开了
-   *
-   * @return false after close is called.
+   * ===============================end of 构造函数===============================
    */
+
+  // 输入输出流、有一个不为null，则表示传输层打开了
   public boolean isOpen() {
     return inputStream_ != null || outputStream_ != null;
   }
 
-  /**
-   * The streams must already be open. This method does nothing.
-   */
+  // The streams must already be open. This method does nothing.
   public void open() throws TTransportException {}
 
-  /**
-   * 关闭输入输出流：调用close、然后赋值为null
-   *
-   * Closes both the input and output streams.
-   */
+  // 关闭输入输出流：调用close、然后赋值为null
   public void close() {
     try {
       if (inputStream_ != null) {
@@ -126,13 +109,11 @@ public class TIOStreamTransport extends TTransport {
 
 
   /**
-   * 从输入流中读取数据到buf：从buf的off位置开始写数据。
+   * fixme 从输入流中读取数据到buf：从buf的off位置开始写数据。
    *
    * @param buf Array to read into 存放数据的数据
    * @param off Index to start reading at 开始存放数据的偏移量
    * @param len Maximum number of bytes to read 读取数据的最大值-没有这么多、就不读取这么多
-   * @return
-   * @throws TTransportException
    */
   public int read(byte[] buf, int off, int len) throws TTransportException {
     //输入流未创建、抛异常
@@ -149,18 +130,13 @@ public class TIOStreamTransport extends TTransport {
     }
 
     // or -1 if there is no more data because the end of the stream has been reached.
-    // -1 表示流中没有数据了
     if (bytesRead < 0) {
       throw new TTransportException(TTransportException.END_OF_FILE, "Socket is closed by peer.");
     }
     return bytesRead;
   }
 
-  /**
-   * 从buf指定的位置开始，写最多len长度的数据到输出流中
-   *
-   * Writes to the underlying output stream if not null.
-   */
+  // 从buf指定的位置off开始，fixme 写最多len长度的数据到输出流中
   public void write(byte[] buf, int off, int len) throws TTransportException {
     if (outputStream_ == null) {
       throw new TTransportException(TTransportException.NOT_OPEN, "Cannot write to null outputStream");
@@ -172,11 +148,8 @@ public class TIOStreamTransport extends TTransport {
     }
   }
 
-  /**
-   * 迫使所有缓冲的输出数据被写出到底层输出流中/
-   * 刷新输出流缓存区中的数据到目标位置：
-   *  1. 如果不flush就close，可能会丢失数据；
-   *
+  /**fixme 写出后在清空
+   * 刷新输出流缓存区中的数据到目标位置： 如果不flush的情况就close，可能会丢失数据；
    *
    * Flushes the underlying output stream if not null.
    * https://blog.csdn.net/dabing69221/article/details/16996877

@@ -87,7 +87,7 @@ public abstract class TTransport implements Closeable {
    * Guarantees that all of len bytes are actually read off the transport.
    *
    * @param buf Array to read into 存储数据的数组
-   * @param off Index to start reading at 开始读取数据的偏移量
+   * @param off Index to start reading at 在buf中开始存储数据的偏移量
    * @param len Maximum number of bytes to read 读取的最大字节数量
    *
    * @return The number of bytes actually read, fixme which must be equal to len，通过轮训实现的
@@ -142,8 +142,7 @@ public abstract class TTransport implements Closeable {
    *
    * @throws TTransportException if there was an error writing out data.
    */
-  public void flush()
-    throws TTransportException {}
+  public void flush() throws TTransportException {}
 
   /**
    * fixme 直接获取 协议/传输层底层的缓存，如果该 传输层 不支持缓存则返回null

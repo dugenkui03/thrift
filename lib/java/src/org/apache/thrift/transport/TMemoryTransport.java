@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import org.apache.thrift.TByteArrayOutputStream;
 
 /**
+ * 在内存传输层，使用单独的缓存区进行
  * In memory transport with separate buffers for input and output.
  */
 public class TMemoryTransport extends TTransport {

@@ -28,8 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 用来测试的单线程服务器。
+ * 
  * Simple singlethreaded server for testing.
- *
  */
 public class TSimpleServer extends TServer {
 

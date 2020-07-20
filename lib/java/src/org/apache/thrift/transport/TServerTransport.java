@@ -23,8 +23,9 @@ import java.io.Closeable;
 import java.net.InetSocketAddress;
 
 /**
- * Server transport. Object which provides client transports.
+ * 服务传输层，提供客户端传输对象。
  *
+ * Server transport. Object which provides client transports.
  */
 public abstract class TServerTransport implements Closeable {
 

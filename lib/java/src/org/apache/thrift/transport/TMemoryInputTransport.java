@@ -69,12 +69,14 @@ public final class TMemoryInputTransport extends TTransport {
   public void open() throws TTransportException {}
 
   /**
-   * 从 buf_ 中、pos_开始，读取 min(bytesRemaining,len) 的数据到 buf中
+   * 从 输入流buf_ 中、pos_开始，读取 min(bytesRemaining,len) 的数据到 buf中、存放位置是从off开始
    * 并递增 pos_、返回真实读取的数据量
    */
   @Override
   public int read(byte[] buf, int off, int len) throws TTransportException {
+    //输入流中的数据量
     int bytesRemaining = getBytesRemainingInBuffer();
+    //可以读取的数据量
     int amtToRead = (bytesRemaining < len ? bytesRemaining : len);
     if (amtToRead > 0) {
       //学学
